@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 import com.saims.sgrf.config.Personalizer;
 import com.saims.sgrf.dao.UsuarioDao;
 import com.saims.sgrf.dto.UserDto;
+import com.saims.sgrf.dto.UsuarioDtoRequest;
 import com.saims.sgrf.dto.UsuarioDtoResponse;
+import com.saims.sgrf.dto.passwordDtoRequest;
 import com.saims.sgrf.enums.Estado;
 import com.saims.sgrf.enums.Rol;
 import com.saims.sgrf.model.PersonaModel;
@@ -69,6 +71,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 					nuevo.setPassword(pass);
 					nuevo.setEstado(true);
 					nuevo.setPersona(persona);
+					nuevo.setImagen("usuario.png");
 					return (nuevo);
 				});
 		this.usuarioDao.save(usuario);		
@@ -141,6 +144,41 @@ public class UsuarioServiceImpl implements UsuarioService {
 				break;
 		}
 		return usuarios;
+	}
+	
+	@Transactional
+	public boolean updateUsuarioPassword(passwordDtoRequest request)throws Exception {
+		UsuarioModel usuario = this.usuarioDao.getId(request.getId());
+		if(usuario.getPassword().equals(this.personalizer.password(request.getPass1()))) {
+			usuario.setPassword(this.personalizer.password(request.getPass3()));
+			this.usuarioDao.save(usuario);
+			return (true);
+		}
+		else
+			return(false);
+	}
+	
+	@Transactional
+	public UsuarioDtoResponse updateUsuarioImagen(UsuarioDtoResponse response) {
+		UsuarioModel usuario = this.usuarioDao.getId(response.getId());	
+		usuario.setImagen(response.getImagen());
+		this.usuarioDao.save(usuario);
+		return this.modelToResponse(usuario);
+	}
+	
+	@Transactional
+	public UsuarioDtoResponse updatePassword(Long id) {
+		UsuarioModel usuario = this.usuarioDao.getId(id);
+		String password = "0";
+		try {
+			password = this.personalizer.password(usuario.getUsuario());
+			usuario.setPassword(password);
+			this.usuarioDao.save(usuario);
+			return (this.modelToResponse(usuario));
+		}catch(Exception e) {
+			password = "0";
+			return null;
+		}
 	}
 	
 	/**

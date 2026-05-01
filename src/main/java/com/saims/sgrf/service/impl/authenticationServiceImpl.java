@@ -8,6 +8,7 @@ import com.saims.sgrf.config.Personalizer;
 import com.saims.sgrf.dao.UsuarioDao;
 import com.saims.sgrf.dto.LoginDtoRequest;
 import com.saims.sgrf.dto.LoginDtoResponse;
+import com.saims.sgrf.dto.PersonaDtoResponse;
 import com.saims.sgrf.dto.UserDto;
 import com.saims.sgrf.enums.Rol;
 import com.saims.sgrf.model.UsuarioModel;
@@ -47,11 +48,28 @@ public class authenticationServiceImpl implements authenticationService{
 		
 		
 		if(usuario.getEstado()) {
+			response.setIdUsuario(usuario.getId());
+			
 			response.setEmail(usuario.getPersona().getEmail());
 			response.setUser(usuario.getUsuario());
-			response.setNombre(usuario.getPersona().getNombre()+" "+usuario.getPersona().getPaterno()+" "+usuario.getPersona().getMaterno());
+			response.setNombre(usuario.getPersona().getNombre());
+			response.setImagen(usuario.getImagen());
+			
+			PersonaDtoResponse persona = new PersonaDtoResponse();
+			persona.setId(usuario.getPersona().getId());
+			persona.setIdp(usuario.getPersona().getIdp());
+			persona.setNombre(usuario.getPersona().getNombre());
+			persona.setPaterno(usuario.getPersona().getPaterno());
+			persona.setMaterno(usuario.getPersona().getMaterno());
+			persona.setCelular(usuario.getPersona().getCelular());
+			persona.setEmail(usuario.getPersona().getEmail());
+			persona.setFechaNacimiento(usuario.getPersona().getFechaNacimiento());
+			persona.setSexo(usuario.getPersona().getSexo());
+			
+			response.setPersona(persona);
 			
 			UserDto user = new UserDto();
+			
 			user.setUsername(response.getUser());
 			user.setPassword(password);
 			user.setRol(Rol.USER);

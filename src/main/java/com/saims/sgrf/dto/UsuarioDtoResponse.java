@@ -8,6 +8,7 @@ public class UsuarioDtoResponse {
 	private String usuario;
 	private String password;
 	private Boolean estado;
+	private String imagen;
 	private String fechaCreacion;
 	private String fechaActualizacion;
 }

@@ -70,7 +70,8 @@ public interface PersonaService {
      * @param request DTO con los nuevos datos de la persona.
      * @return PersonaDtoResponse DTO con la información actualizada.
      */
-    PersonaDtoResponse update(PersonaDtoRequest request);
+    PersonaDtoResponse updateFull(PersonaDtoResponse response);
+    PersonaDtoResponse updateCelular(PersonaDtoResponse response);
 
     /**
      * Elimina una persona del sistema por su ID.

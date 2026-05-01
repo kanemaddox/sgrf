@@ -2,6 +2,8 @@ package com.saims.sgrf.config;
 
 import java.io.IOException;
 
+//import io.micrometer.common.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,8 +15,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.saims.sgrf.service.UsuarioService;
 import com.saims.sgrf.service.jwtService;
 
-//import io.micrometer.common.util.StringUtils;
-import org.apache.commons.lang3.StringUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,13 +36,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 		final String authHeader = request.getHeader(this.HEADER);
 		final String jwt;
 		final String username;
+	    
 		if(existeToken(request,response)) {
 			filterChain.doFilter(request, response);
 			return;
 		}
 		jwt = authHeader.substring(7);
 		username = jwtService.extractUserName(jwt);
-		System.out.print(username);
 		if(StringUtils.isNotEmpty(username) && SecurityContextHolder.getContext().getAuthentication() == null) {
 			UserDetails userDetails = userService.userDetailsService().loadUserByUsername(username);
 			if(jwtService.isTokenValid(jwt, userDetails)) {

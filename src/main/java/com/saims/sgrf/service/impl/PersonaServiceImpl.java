@@ -123,23 +123,37 @@ public class PersonaServiceImpl implements PersonaService {
      * Actualiza una persona
      */
     @Transactional
-    public PersonaDtoResponse update(PersonaDtoRequest request) {
+    public PersonaDtoResponse updateFull(PersonaDtoResponse response) {
 
-        PersonaModel persona = personaDao.findByIdp(this.personalizer.normalizer(request.getIdp()))
+        PersonaModel persona = personaDao.findByIdp(this.personalizer.normalizer(response.getIdp()))
                 .orElseThrow(() -> new RuntimeException("Persona no encontrada"));
 
-        persona.setNombre(this.personalizer.normalizerName(request.getNombre()));
-        persona.setPaterno(this.personalizer.normalizerName(request.getPaterno()));
-        persona.setMaterno(this.personalizer.normalizerName(request.getMaterno()));
-        persona.setEmail(this.personalizer.normalizerLower(request.getEmail()));
-        persona.setFechaNacimiento(request.getFechaNacimiento());
-        persona.setCelular(request.getCelular());
-        persona.setSexo(request.getSexo());
+        persona.setNombre(this.personalizer.normalizerName(response.getNombre()));
+        persona.setPaterno(this.personalizer.normalizerName(response.getPaterno()));
+        persona.setMaterno(this.personalizer.normalizerName(response.getMaterno()));
+        persona.setEmail(this.personalizer.normalizerLower(response.getEmail()));
+        persona.setFechaNacimiento(response.getFechaNacimiento());
+        persona.setCelular(response.getCelular());
+        persona.setSexo(response.getSexo());
 
         this.personaDao.save(persona);
 
         return this.modelToResponse(persona);
     }
+    
+    /**
+     * Actualiza una persona
+     */
+    @Transactional
+    public PersonaDtoResponse updateCelular(PersonaDtoResponse response) {
+
+        PersonaModel persona = this.personaDao.getId(response.getId());
+        persona.setCelular(response.getCelular());
+        this.personaDao.save(persona);
+
+        return this.modelToResponse(persona);
+    }
+    
 
     /**
      * Elimina una persona por ID

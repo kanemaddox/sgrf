@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import com.saims.sgrf.dto.UsuarioDtoResponse;
+import com.saims.sgrf.dto.passwordDtoRequest;
 import com.saims.sgrf.enums.Estado;
 import com.saims.sgrf.model.PersonaModel;
 import com.saims.sgrf.model.UsuarioModel;
@@ -20,4 +21,9 @@ public interface UsuarioService{
 	void setAllEstado(boolean estado);
 	
 	UserDetailsService userDetailsService();
+	
+	UsuarioDtoResponse updateUsuarioImagen(UsuarioDtoResponse response);
+	UsuarioDtoResponse updatePassword(Long id);
+	
+	boolean updateUsuarioPassword(passwordDtoRequest request)throws Exception;
 }

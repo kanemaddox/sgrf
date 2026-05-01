@@ -33,6 +33,7 @@ public class SecurityConfiguration {
 		http.csrf(AbstractHttpConfigurer::disable)
 		.authorizeHttpRequests(request ->request.requestMatchers("/sgrf/login/**")
 				.permitAll()
+				.requestMatchers("/sgrf/imagenes/**").permitAll()
 				.requestMatchers("/sgrf/admin/**").hasAnyAuthority(Rol.ADMIN.name())
 				.requestMatchers("/sgrf/user/**").hasAnyAuthority(Rol.USER.name())
 				.anyRequest().authenticated())

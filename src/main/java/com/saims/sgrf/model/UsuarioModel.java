@@ -38,6 +38,13 @@ public class UsuarioModel extends StatusEntity{
     @Column(name = "password", nullable = false)
     private String password;
     
+    /**
+     * 👤 imagen del usuario
+     */
+    @NotBlank(message = "la foto del usuario es obligatorio")
+    @Column(name = "imagen", nullable = false)
+    private String imagen;
+    
     
     /**
      * 🏦 Relación con persona

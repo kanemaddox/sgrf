@@ -31,6 +31,7 @@ public class DataInitializer {
                 admin.setEstado(true);
                 admin.setUsuario(persona.getIdp());
                 admin.setPassword(this.personalizer.password("admin"));
+                admin.setImagen("usuario.png");
                 admin.setPersona(persona);
                 
                 usuario.save(admin);

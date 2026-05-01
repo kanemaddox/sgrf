@@ -14,7 +14,7 @@ public class PersonaDtoResponse {
 	private String paterno;
 	private String materno;
 	private String email;
-	private String fechaNacimineto;
+	private String fechaNacimiento;
 	private Boolean sexo;
 	private String celular;
 	private String fechaCreacion;
