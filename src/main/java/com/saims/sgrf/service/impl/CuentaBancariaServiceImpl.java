@@ -10,9 +10,8 @@ import org.springframework.stereotype.Service;
 import com.saims.sgrf.dao.BancoDao;
 import com.saims.sgrf.dao.CuentaBancariaDao;
 import com.saims.sgrf.dao.PersonaDao;
-import com.saims.sgrf.dto.CuentaBancariaDtoRequest;
-import com.saims.sgrf.dto.CuentaBancariaDtoResponse;
-import com.saims.sgrf.dto.DatosDtoRequest;
+import com.saims.sgrf.dto.CuentaBancariaDto;
+import com.saims.sgrf.dto.DatosDto;
 import com.saims.sgrf.enums.Estado;
 import com.saims.sgrf.model.BancoModel;
 import com.saims.sgrf.model.CuentaBancariaModel;
@@ -45,9 +44,9 @@ public class CuentaBancariaServiceImpl implements CuentaBancariaService {
      * @return Cuenta bancaria creada o existente
      */
     @Transactional
-    public CuentaBancariaModel createOrGet(PersonaModel personaModel,BancoModel bancoModel,DatosDtoRequest datosDtoRequest) {
+    public CuentaBancariaModel createOrGet(PersonaModel personaModel,BancoModel bancoModel,DatosDto.Request request) {
 
-        Optional<CuentaBancariaModel> cuentaExistente = findCuentaExistente(personaModel.getId(), bancoModel.getId(), datosDtoRequest.getNumero());
+        Optional<CuentaBancariaModel> cuentaExistente = findCuentaExistente(personaModel.getId(), bancoModel.getId(), request.getNumero());
 
         // Desactivar todas las cuentas previas
         desactivarCuentas(personaModel.getId());
@@ -59,7 +58,7 @@ public class CuentaBancariaServiceImpl implements CuentaBancariaService {
         }
 
         // Crear nueva cuenta
-        CuentaBancariaModel nuevaCuenta = buildCuenta(personaModel, bancoModel,datosDtoRequest.getNumero(), datosDtoRequest.getTipoCuenta());
+        CuentaBancariaModel nuevaCuenta = buildCuenta(personaModel, bancoModel,request.getNumero(), request.getTipoCuenta());
 
         this.cuentaBancariaDao.save(nuevaCuenta);
         return nuevaCuenta;
@@ -72,12 +71,12 @@ public class CuentaBancariaServiceImpl implements CuentaBancariaService {
      * @return DTO de respuesta
      */
     @Transactional
-    public CuentaBancariaDtoResponse createCuentaBancaria(CuentaBancariaDtoRequest request) {
+    public CuentaBancariaDto.Response createCuentaBancaria(CuentaBancariaDto.Request request) {
 
         PersonaModel persona = this.personaDao.getId(request.getIdPersona());
         BancoModel banco = this.bancoDao.getId(request.getIdBanco());
         
-        DatosDtoRequest datos = new DatosDtoRequest();
+        DatosDto.Request datos = new DatosDto.Request();
         datos.setNumero(request.getNumero());
         datos.setTipoCuenta(request.getTipoCuenta());
 
@@ -93,7 +92,7 @@ public class CuentaBancariaServiceImpl implements CuentaBancariaService {
      * @return cuenta bancaria
      */
     @Transactional
-    public CuentaBancariaDtoResponse getCuentaBancaria(Long id) {
+    public CuentaBancariaDto.Response getCuentaBancaria(Long id) {
         CuentaBancariaModel cuenta = cuentaBancariaDao.getId(id);
         return this.modelToResponse(cuenta);
     }
@@ -105,7 +104,7 @@ public class CuentaBancariaServiceImpl implements CuentaBancariaService {
      * @return lista de cuentas
      */
     @Transactional
-    public List<CuentaBancariaDtoResponse> getCuentasBancarias(Long idPersona) {
+    public List<CuentaBancariaDto.Response> getCuentasBancarias(Long idPersona) {
         return cuentaBancariaDao.getListaCuentaBancaria(idPersona)
                 .stream()
                 .map(cuenta -> this.modelToResponse(cuenta))
@@ -118,8 +117,8 @@ public class CuentaBancariaServiceImpl implements CuentaBancariaService {
      * @return lista completa
      */
     @Transactional
-    public List<CuentaBancariaDtoResponse> findByAll(Estado estado) {
-    	List<CuentaBancariaDtoResponse> cuentas = null;
+    public List<CuentaBancariaDto.Response> findByAll(Estado estado) {
+    	List<CuentaBancariaDto.Response> cuentas = null;
     	
     	switch(estado) {
     		case ACTIVO:
@@ -145,7 +144,7 @@ public class CuentaBancariaServiceImpl implements CuentaBancariaService {
     }
     
     @Transactional
-    public CuentaBancariaDtoResponse update(CuentaBancariaDtoResponse response) {
+    public CuentaBancariaDto.Response update(CuentaBancariaDto.Response response) {
     	PersonaModel persona = this.personaDao.getId(response.getId());
     	BancoModel banco = this.bancoDao.getId(response.getId());
     	
@@ -245,7 +244,7 @@ public class CuentaBancariaServiceImpl implements CuentaBancariaService {
      * Obtiene la cuenta activa de una persona.
      */
     @Transactional
-    public Optional<CuentaBancariaDtoResponse> getCuentaActiva(Long idPersona) {
+    public Optional<CuentaBancariaDto.Response> getCuentaActiva(Long idPersona) {
         return cuentaBancariaDao.getListaCuentaBancaria(idPersona)
                 .stream()
                 .filter(CuentaBancariaModel::getEstado)
@@ -264,7 +263,17 @@ public class CuentaBancariaServiceImpl implements CuentaBancariaService {
     /**
      * 📌 Convierte Entity → DTO
      */
-    private CuentaBancariaDtoResponse modelToResponse(CuentaBancariaModel cuentaBancariaModel) {
-        return this.modelMapper.map(cuentaBancariaModel, CuentaBancariaDtoResponse.class);
+    private CuentaBancariaDto.Response modelToResponse(CuentaBancariaModel cuentaBancariaModel) {
+        return this.modelMapper.map(cuentaBancariaModel, CuentaBancariaDto.Response.class);
+    }
+    
+    @Transactional
+    public CuentaBancariaModel getCuentaBancariaActivo(Long idPersona) {
+    	CuentaBancariaModel cuentaBancaria = this.cuentaBancariaDao.getCuentaBancariaActivo(idPersona).orElseGet(()->{
+    		CuentaBancariaModel nuevo = new CuentaBancariaModel();
+    		nuevo.setId(0L);
+    		return nuevo;
+    	});
+    	return cuentaBancaria;
     }
 }

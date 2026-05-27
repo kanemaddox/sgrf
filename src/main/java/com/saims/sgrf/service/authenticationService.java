@@ -1,8 +1,7 @@
 package com.saims.sgrf.service;
 
-import com.saims.sgrf.dto.LoginDtoRequest;
-import com.saims.sgrf.dto.LoginDtoResponse;
+import com.saims.sgrf.dto.LoginDto;
 
 public interface authenticationService {
-	LoginDtoResponse login(LoginDtoRequest request);
+	LoginDto.Response login(LoginDto.Request request);
 }

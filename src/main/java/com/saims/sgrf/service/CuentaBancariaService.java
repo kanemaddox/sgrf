@@ -2,9 +2,8 @@ package com.saims.sgrf.service;
 
 import java.util.List;
 
-import com.saims.sgrf.dto.CuentaBancariaDtoRequest;
-import com.saims.sgrf.dto.CuentaBancariaDtoResponse;
-import com.saims.sgrf.dto.DatosDtoRequest;
+import com.saims.sgrf.dto.CuentaBancariaDto;
+import com.saims.sgrf.dto.DatosDto;
 import com.saims.sgrf.enums.Estado;
 import com.saims.sgrf.model.BancoModel;
 import com.saims.sgrf.model.CuentaBancariaModel;
@@ -29,7 +28,7 @@ public interface CuentaBancariaService {
      */
     CuentaBancariaModel createOrGet(PersonaModel personaModel,
                                     BancoModel bancoModel,
-                                    DatosDtoRequest datosDtoRequest);
+                                    DatosDto.Request request);
 
     /**
      * 🔹 Crea una cuenta bancaria a partir de un DTO.
@@ -37,7 +36,7 @@ public interface CuentaBancariaService {
      * @param request datos de la cuenta bancaria
      * @return DTO de respuesta con la cuenta creada
      */
-    CuentaBancariaDtoResponse createCuentaBancaria(CuentaBancariaDtoRequest request);
+    CuentaBancariaDto.Response createCuentaBancaria(CuentaBancariaDto.Request request);
 
     /**
      * 🔹 Obtiene una cuenta bancaria por su ID.
@@ -45,7 +44,7 @@ public interface CuentaBancariaService {
      * @param id identificador de la cuenta
      * @return DTO de la cuenta bancaria
      */
-    CuentaBancariaDtoResponse getCuentaBancaria(Long id);
+    CuentaBancariaDto.Response getCuentaBancaria(Long id);
 
     /**
      * 🔹 Obtiene todas las cuentas bancarias de una persona.
@@ -53,7 +52,7 @@ public interface CuentaBancariaService {
      * @param idPersona identificador de la persona
      * @return lista de cuentas bancarias
      */
-    List<CuentaBancariaDtoResponse> getCuentasBancarias(Long idPersona);
+    List<CuentaBancariaDto.Response> getCuentasBancarias(Long idPersona);
     
     List<CuentaBancariaModel> getCuentasBancarias();
 
@@ -62,7 +61,10 @@ public interface CuentaBancariaService {
      * 
      * @return lista de cuentas bancarias
      */
-    List<CuentaBancariaDtoResponse> findByAll(Estado estado);
+    List<CuentaBancariaDto.Response> findByAll(Estado estado);
     
-    CuentaBancariaDtoResponse update(CuentaBancariaDtoResponse response);
+    CuentaBancariaDto.Response update(CuentaBancariaDto.Response response);
+    
+    CuentaBancariaModel getCuentaBancariaActivo(Long idPersona);
+    
 }

@@ -2,6 +2,10 @@ package com.saims.sgrf.config;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 
 public class Personalizer {
 	
@@ -65,5 +69,20 @@ public class Personalizer {
         }
 		return hexString.toString();
 	}
+    public String getNunero(int numero) {
+    	numero++;
+    	return String.format("%06d", numero);
+    }
+    
+    public LocalDateTime getFecha(String fecha) {
+    	DateTimeFormatter formateador = new DateTimeFormatterBuilder()
+    		    .appendOptional(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+    		    .appendOptional(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+    		    .toFormatter();
+    	
+    	LocalDate fechaBase = LocalDate.parse(fecha, formateador);
+    	LocalDateTime fechaFinal = fechaBase.atStartOfDay();
+    	return fechaFinal;
+    }
 
 }

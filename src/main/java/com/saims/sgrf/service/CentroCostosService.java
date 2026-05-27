@@ -5,9 +5,8 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.saims.sgrf.dto.CentroCostosDtoRequest;
-import com.saims.sgrf.dto.CentroCostosDtoResponse;
-import com.saims.sgrf.dto.DatosDtoRequest;
+import com.saims.sgrf.dto.CentroCostosDto;
+import com.saims.sgrf.dto.DatosDto;
 import com.saims.sgrf.model.CentroCostosModel;
 
 /**
@@ -28,7 +27,7 @@ public interface CentroCostosService {
      * @param datosDtoRequest objeto con datos generales (nombre, código, etc.)
      * @return entidad {@link CentroCostosModel} creada o encontrada
      */
-    CentroCostosModel createOrGet(DatosDtoRequest datosDtoRequest);
+    CentroCostosModel createOrGet(DatosDto.Request request);
 
     /**
      * Crea un nuevo Centro de Costos.
@@ -36,7 +35,7 @@ public interface CentroCostosService {
      * @param request DTO con la información necesaria para la creación
      * @return DTO de respuesta con los datos del centro creado
      */
-    CentroCostosDtoResponse createCentroCostos(CentroCostosDtoRequest request);
+    CentroCostosDto.Response createCentroCostos(CentroCostosDto.Request request);
 
     /**
      * Obtiene un Centro de Costos por su ID.
@@ -44,14 +43,14 @@ public interface CentroCostosService {
      * @param id identificador único
      * @return DTO con la información del centro de costos
      */
-    CentroCostosDtoResponse getById(Long id);
+    CentroCostosDto.Response getById(Long id);
 
     /**
      * Obtiene la lista completa de Centros de Costos.
      *
      * @return lista de DTOs de centros de costos
      */
-    List<CentroCostosDtoResponse> getAll();
+    List<CentroCostosDto.Response> findAll();
 
     /**
      * Obtiene una lista paginada de Centros de Costos.
@@ -59,7 +58,7 @@ public interface CentroCostosService {
      * @param pageable configuración de paginación
      * @return página de DTOs de centros de costos
      */
-    Page<CentroCostosDtoResponse> getAllPaginated(Pageable pageable);
+    Page<CentroCostosDto.Response> getAllPaginated(Pageable pageable);
 
     /**
      * Busca un Centro de Costos por su código.
@@ -67,7 +66,7 @@ public interface CentroCostosService {
      * @param codigo código único del centro de costos
      * @return DTO con la información encontrada
      */
-    CentroCostosDtoResponse findByCodigo(String codigo);
+    CentroCostosDto.Response findByCodigo(String codigo);
 
     /**
      * Actualiza únicamente el nombre de un Centro de Costos.
@@ -75,7 +74,7 @@ public interface CentroCostosService {
      * @param response DTO con los datos actualizados
      * @return DTO con la información actualizada
      */
-    CentroCostosDtoResponse updateNombre(CentroCostosDtoResponse response);
+    CentroCostosDto.Response updateNombre(CentroCostosDto.Response response);
 
     /**
      * Actualiza completamente un Centro de Costos.
@@ -83,7 +82,7 @@ public interface CentroCostosService {
      * @param response DTO con todos los campos actualizados
      * @return DTO con la información actualizada
      */
-    CentroCostosDtoResponse updateFull(CentroCostosDtoResponse response);
+    CentroCostosDto.Response updateFull(CentroCostosDto.Response response);
 
     /**
      * Elimina un Centro de Costos por su ID.

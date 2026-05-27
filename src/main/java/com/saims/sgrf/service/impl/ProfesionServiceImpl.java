@@ -10,9 +10,8 @@ import org.springframework.stereotype.Service;
 
 import com.saims.sgrf.config.Personalizer;
 import com.saims.sgrf.dao.ProfesionDao;
-import com.saims.sgrf.dto.DatosDtoRequest;
-import com.saims.sgrf.dto.ProfesionDtoRequest;
-import com.saims.sgrf.dto.ProfesionDtoResponse;
+import com.saims.sgrf.dto.DatosDto;
+import com.saims.sgrf.dto.ProfesionDto;
 import com.saims.sgrf.model.ProfesionModel;
 import com.saims.sgrf.service.ProfesionService;
 
@@ -44,11 +43,11 @@ public class ProfesionServiceImpl implements ProfesionService {
      * @return ProfesionModel existente o creada
      */
     @Transactional
-    public ProfesionModel createOrGet(DatosDtoRequest datosDtoRequest) {
+    public ProfesionModel createOrGet(DatosDto.Request request) {
 
-        String nombreProfesion = this.personalizer.normalizer(datosDtoRequest.getProfesionNombre());
+        String nombreProfesion = this.personalizer.normalizer(request.getProfesionNombre());
 
-        return profesionDao.findByNombre(nombreProfesion)
+        return this.profesionDao.findByNombre(nombreProfesion)
                 .orElseGet(() -> {
                     ProfesionModel nuevo = new ProfesionModel();
                     nuevo.setNombre(nombreProfesion);
@@ -63,7 +62,7 @@ public class ProfesionServiceImpl implements ProfesionService {
      * @return ProfesionDtoResponse
      */
     @Transactional
-    public ProfesionDtoResponse createProfesion(ProfesionDtoRequest request) {
+    public ProfesionDto.Response createProfesion(ProfesionDto.Request request) {
 
         String nombreProfesion = this.personalizer.normalizer(request.getNombre());
 
@@ -74,7 +73,7 @@ public class ProfesionServiceImpl implements ProfesionService {
                     return profesionDao.save(nuevaProfesion);
                 });
 
-        return modelMapper.map(profesionModel, ProfesionDtoResponse.class);
+        return modelMapper.map(profesionModel, ProfesionDto.Response.class);
     }
 
     // =========================
@@ -87,7 +86,7 @@ public class ProfesionServiceImpl implements ProfesionService {
      * @return lista de ProfesionDtoResponse
      */
     @Transactional
-    public List<ProfesionDtoResponse> getAll() {
+    public List<ProfesionDto.Response> getAll() {
 
         return profesionDao.findAll()
                 .stream()
@@ -102,7 +101,7 @@ public class ProfesionServiceImpl implements ProfesionService {
      * @return ProfesionDtoResponse
      */
     @Transactional
-    public ProfesionDtoResponse getById(Long id) {
+    public ProfesionDto.Response getById(Long id) {
 
         ProfesionModel profesion = this.profesionDao.findById(id)
                 .orElseThrow(() -> new RuntimeException("Profesión no encontrada con ID: " + id));
@@ -117,7 +116,7 @@ public class ProfesionServiceImpl implements ProfesionService {
      * @return ProfesionDtoResponse
      */
     @Transactional
-    public ProfesionDtoResponse findByNombre(String nombre) {
+    public ProfesionDto.Response findByNombre(String nombre) {
 
         String nombreNormalizado = this.personalizer.normalizer(nombre);
 
@@ -131,7 +130,7 @@ public class ProfesionServiceImpl implements ProfesionService {
      * 📌 Paginación (frontend)
      */
     @Transactional
-    public Page<ProfesionDtoResponse> getAllPaginated(Pageable pageable) {
+    public Page<ProfesionDto.Response> getAllPaginated(Pageable pageable) {
         return this.profesionDao.findAll(pageable)
                 .map(area -> this.modelToResponse(area));
     }
@@ -147,7 +146,7 @@ public class ProfesionServiceImpl implements ProfesionService {
      * @return ProfesionDtoResponse
      */
     @Transactional
-    public ProfesionDtoResponse update(ProfesionDtoResponse response) {
+    public ProfesionDto.Response update(ProfesionDto.Response response) {
 
         ProfesionModel profesion = this.profesionDao.findById(response.getId())
                 .orElseThrow(() -> new RuntimeException("Profesión no encontrada con ID: " + response.getId()));
@@ -189,8 +188,8 @@ public class ProfesionServiceImpl implements ProfesionService {
      * @return nombre normalizado
      */
     
-    private ProfesionDtoResponse modelToResponse(ProfesionModel profesion) {
-    	return (this.modelMapper.map(profesion, ProfesionDtoResponse.class));
+    private ProfesionDto.Response modelToResponse(ProfesionModel profesion) {
+    	return (this.modelMapper.map(profesion, ProfesionDto.Response.class));
     }
     
     /**

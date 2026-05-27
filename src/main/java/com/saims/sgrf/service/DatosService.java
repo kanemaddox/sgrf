@@ -2,13 +2,16 @@ package com.saims.sgrf.service;
 
 import java.util.List;
 
-import com.saims.sgrf.dto.DatosDtoRequest;
-import com.saims.sgrf.dto.DatosDtoResponse;
+import com.saims.sgrf.dto.DatosDto;
 
 public interface DatosService {
 	
-	DatosDtoResponse AddDatos(DatosDtoRequest datosDtoRequest) throws Exception;
-	List<DatosDtoResponse>getEmpleadosFile();
+	DatosDto.Response AddDatos(DatosDto.Request request) throws Exception;
+	List<DatosDto.Request>getEmpleadosFile();
 	void setAllEstado(boolean estado);
+	DatosDto.Response getDatos(Long idPersona);
+	DatosDto.Response getDatosUsuario(Long idUsuario);
+	
+	DatosDto.Empleado getDatosEmpleados();
 
 }

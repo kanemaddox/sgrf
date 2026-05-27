@@ -12,22 +12,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.saims.sgrf.dto.AreaDtoRequest;
-import com.saims.sgrf.dto.AreaDtoResponse;
+import com.saims.sgrf.dto.AreaDto;
 import com.saims.sgrf.enums.Estado;
 import com.saims.sgrf.service.AreaService;
 
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/erpm/area")
+@RequestMapping("/sgrf/user/area")
 @RequiredArgsConstructor
 public class AreaController {
 	
 	private final AreaService areaService;
 	
 	@PostMapping("/create")
-	public ResponseEntity<AreaDtoResponse> create(@RequestBody AreaDtoRequest request){
+	public ResponseEntity<AreaDto.Response> create(@RequestBody AreaDto.Request request){
 		try {
 			return new ResponseEntity<>(this.areaService.createArea(request) ,HttpStatus.CREATED);
 		}catch (Exception e) {
@@ -35,8 +34,8 @@ public class AreaController {
 		}
 	}
 	
-	@GetMapping("/getLista")
-	public ResponseEntity<List<AreaDtoResponse>> getLista(@RequestParam (value="estado") Estado estado){
+	@GetMapping("/findByAll")
+	public ResponseEntity<List<AreaDto.Response>> findByAll(@RequestParam (value="estado") Estado estado){
 		try {
 			return new ResponseEntity<>(this.areaService.findByAll(estado),HttpStatus.OK);
 		}catch (Exception e) {
@@ -45,7 +44,7 @@ public class AreaController {
 	}
 	
 	@PutMapping("/update")
-	public ResponseEntity<AreaDtoResponse> update(@RequestBody AreaDtoResponse response){
+	public ResponseEntity<AreaDto.Response> update(@RequestBody AreaDto.Response response){
 		try {
 			return new ResponseEntity<>(this.areaService.update(response),HttpStatus.OK);
 		}catch (Exception e) {

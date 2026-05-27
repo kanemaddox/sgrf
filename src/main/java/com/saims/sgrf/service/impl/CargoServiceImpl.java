@@ -10,9 +10,8 @@ import org.springframework.stereotype.Service;
 
 import com.saims.sgrf.config.Personalizer;
 import com.saims.sgrf.dao.CargoDao;
-import com.saims.sgrf.dto.CargoDtoRequest;
-import com.saims.sgrf.dto.CargoDtoResponse;
-import com.saims.sgrf.dto.DatosDtoRequest;
+import com.saims.sgrf.dto.CargoDto;
+import com.saims.sgrf.dto.DatosDto;
 import com.saims.sgrf.model.CargoModel;
 import com.saims.sgrf.service.CargoService;
 
@@ -46,9 +45,9 @@ public class CargoServiceImpl implements CargoService {
      * 3. Si no existe → lo crea
      */
     @Transactional
-    public CargoModel createOrGet(DatosDtoRequest datosDtoRequest) {
+    public CargoModel createOrGet(DatosDto.Request request) {
 
-        String nombreCargo = this.personalizer.normalizer(datosDtoRequest.getCargoNombre());
+        String nombreCargo = this.personalizer.normalizer(request.getCargoNombre());
 
         return this.cargoDao.findByNombre(nombreCargo)
                 .orElseGet(() -> {
@@ -62,9 +61,9 @@ public class CargoServiceImpl implements CargoService {
      * 📌 Crea un nuevo Cargo o devuelve uno existente
      */
     @Transactional
-    public CargoDtoResponse createCargo(CargoDtoRequest cargoDtoRequest) {
+    public CargoDto.Response createCargo(CargoDto.Request request) {
 
-        String nombreCargo = this.personalizer.normalizer(cargoDtoRequest.getNombre());
+        String nombreCargo = this.personalizer.normalizer(request.getNombre());
         
         if (existsByNombre(nombreCargo)) {
             throw new RuntimeException("El área ya existe");
@@ -83,7 +82,7 @@ public class CargoServiceImpl implements CargoService {
      * 📌 Lista todas las cargos activas
      */
     @Transactional
-    public List<CargoDtoResponse> getAllActive() {
+    public List<CargoDto.Response> getAllActive() {
 
         return this.cargoDao.findAll().stream()
                 .filter(CargoModel::getEstado) // 🔥 solo activos
@@ -95,7 +94,7 @@ public class CargoServiceImpl implements CargoService {
      * 📌 Obtiene todos los cargos
      */
     @Transactional
-    public List<CargoDtoResponse> getAll() {
+    public List<CargoDto.Response> getAll() {
 
         return this.cargoDao.findAll().stream()
                 .map(cargo->this.modelToResponse(cargo))
@@ -106,7 +105,7 @@ public class CargoServiceImpl implements CargoService {
      * 📌 Obtiene todos los cargos con paginación
      */
     @Transactional
-    public Page<CargoDtoResponse> getAllPaginated(Pageable pageable) {
+    public Page<CargoDto.Response> getAllPaginated(Pageable pageable) {
 
         return this.cargoDao.findAll(pageable)
                 .map(cargo->this.modelToResponse(cargo));
@@ -116,7 +115,7 @@ public class CargoServiceImpl implements CargoService {
      * 📌 Busca un cargo por ID
      */
     @Transactional
-    public CargoDtoResponse getById(Long id) {
+    public CargoDto.Response getById(Long id) {
 
         CargoModel cargo = this.cargoDao.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cargo no encontrado con ID: " + id));
@@ -128,7 +127,7 @@ public class CargoServiceImpl implements CargoService {
      * 📌 Busca un cargo por nombre
      */
     @Transactional
-    public CargoDtoResponse findByNombre(String nombre) {
+    public CargoDto.Response findByNombre(String nombre) {
 
         String nombreCargo = this.personalizer.normalizer(nombre);
 
@@ -142,7 +141,7 @@ public class CargoServiceImpl implements CargoService {
      * 📌 Actualiza el nombre de un cargo
      */
     @Transactional
-    public CargoDtoResponse update(CargoDtoResponse response) {
+    public CargoDto.Response update(CargoDto.Response response) {
 
         CargoModel cargo = new CargoModel();
         cargo.setId(response.getId());
@@ -180,7 +179,7 @@ public class CargoServiceImpl implements CargoService {
     /**
      * 📌 Convierte Entity → DTO
      */
-    private CargoDtoResponse modelToResponse(CargoModel cargoModel) {
-        return this.modelMapper.map(cargoModel, CargoDtoResponse.class);
+    private CargoDto.Response modelToResponse(CargoModel cargoModel) {
+        return this.modelMapper.map(cargoModel, CargoDto.Response.class);
     }
 }

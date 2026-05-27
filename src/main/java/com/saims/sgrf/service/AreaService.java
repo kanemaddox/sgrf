@@ -5,9 +5,8 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.saims.sgrf.dto.AreaDtoRequest;
-import com.saims.sgrf.dto.AreaDtoResponse;
-import com.saims.sgrf.dto.DatosDtoRequest;
+import com.saims.sgrf.dto.AreaDto;
+import com.saims.sgrf.dto.DatosDto;
 import com.saims.sgrf.enums.Estado;
 import com.saims.sgrf.model.AreaModel;
 
@@ -25,7 +24,7 @@ public interface AreaService {
      * @param request Datos de entrada del área
      * @return Área creada en formato DTO
      */
-    AreaDtoResponse createArea(AreaDtoRequest request);
+    AreaDto.Response createArea(AreaDto.Request request);
 
     /**
      * 🔁 Crea un área si no existe, o devuelve una existente
@@ -33,34 +32,34 @@ public interface AreaService {
      * @return Entidad AreaModel
      * utilizado para cargas masivas de datos 
      */
-    AreaModel createOrGet(DatosDtoRequest request);
+    AreaModel createOrGet(DatosDto.Request request);
 
     /**
      * 🔍 Obtiene un área por su ID
      * @param id Identificador del área
      * @return Área encontrada
      */
-    AreaDtoResponse getById(Long id);
+    AreaDto.Response getById(Long id);
 
     /**
      * 📋 Lista todas las áreas
      * @return Lista completa de áreas
      */
-    List<AreaDtoResponse> findByAll(Estado estado);
+    List<AreaDto.Response> findByAll(Estado estado);
 
     /**
      * 🔎 Busca un área por nombre
      * @param nombre Nombre del área
      * @return Área encontrada
      */
-    AreaDtoResponse findByNombre(String nombre);
+    AreaDto.Response findByNombre(String nombre);
 
     /**
      * 📄 Obtiene áreas de forma paginada
      * @param pageable Configuración de paginación
      * @return Página de áreas
      */
-    Page<AreaDtoResponse> getAllPaginated(Pageable pageable);
+    Page<AreaDto.Response> getAllPaginated(Pageable pageable);
 
     /**
      * ✏️ Actualiza solo el nombre del área
@@ -68,7 +67,7 @@ public interface AreaService {
      * @param nuevoNombre Nuevo nombre
      * @return Área actualizada
      */
-    AreaDtoResponse updateNombre(AreaDtoResponse response);
+    AreaDto.Response updateNombre(AreaDto.Response response);
 
     /**
      * 🔄 Actualiza completamente un área
@@ -76,7 +75,7 @@ public interface AreaService {
      * @param request Nuevos datos
      * @return Área actualizada
      */
-    AreaDtoResponse update(AreaDtoResponse response);
+    AreaDto.Response update(AreaDto.Response response);
 
     /**
      * ❌ Elimina un área por ID

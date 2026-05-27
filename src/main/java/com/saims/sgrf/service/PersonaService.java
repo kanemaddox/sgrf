@@ -2,9 +2,8 @@ package com.saims.sgrf.service;
 
 import java.util.List;
 
-import com.saims.sgrf.dto.DatosDtoRequest;
-import com.saims.sgrf.dto.PersonaDtoRequest;
-import com.saims.sgrf.dto.PersonaDtoResponse;
+import com.saims.sgrf.dto.DatosDto;
+import com.saims.sgrf.dto.PersonaDto;
 import com.saims.sgrf.model.PersonaModel;
 
 /**
@@ -26,7 +25,7 @@ public interface PersonaService {
      * @param datosDtoRequest Objeto con los datos necesarios para identificar o crear la persona.
      * @return PersonaModel entidad existente o recién creada.
      */
-    PersonaModel createOrGet(DatosDtoRequest datosDtoRequest);
+    PersonaModel createOrGet(DatosDto.Request request);
 
     /**
      * Crea una nueva persona en el sistema.
@@ -37,7 +36,7 @@ public interface PersonaService {
      * @param request DTO con la información de la persona a registrar.
      * @return PersonaModel entidad creada.
      */
-    PersonaModel createPersona(PersonaDtoRequest request);
+    PersonaModel createPersona(PersonaDto.Request request);
 
     /**
      * Obtiene una persona por su identificador único.
@@ -45,7 +44,7 @@ public interface PersonaService {
      * @param id Identificador único de la persona.
      * @return PersonaDtoResponse DTO con la información de la persona.
      */
-    PersonaDtoResponse getById(Long id);
+    PersonaDto.Response getById(Long id);
 
     /**
      * Busca una persona utilizando su IDP (Identificador Personal).
@@ -53,14 +52,14 @@ public interface PersonaService {
      * @param idp Identificador único de la persona.
      * @return PersonaDtoResponse DTO con la información encontrada.
      */
-    PersonaDtoResponse findByIdp(String idp);
+    PersonaDto.Response findByIdp(String idp);
 
     /**
      * Obtiene la lista completa de personas registradas.
      *
      * @return Lista de PersonaDtoResponse con todas las personas.
      */
-    List<PersonaDtoResponse> getAll();
+    List<PersonaDto.Response> getAll();
     
     List<PersonaModel>findAll();
 
@@ -70,8 +69,8 @@ public interface PersonaService {
      * @param request DTO con los nuevos datos de la persona.
      * @return PersonaDtoResponse DTO con la información actualizada.
      */
-    PersonaDtoResponse updateFull(PersonaDtoResponse response);
-    PersonaDtoResponse updateCelular(PersonaDtoResponse response);
+    PersonaDto.Response updateFull(PersonaDto.Response response);
+    PersonaDto.Response updateCelular(PersonaDto.Response response);
 
     /**
      * Elimina una persona del sistema por su ID.
@@ -87,4 +86,6 @@ public interface PersonaService {
      * @return true si existe, false en caso contrario.
      */
     boolean existsByIdp(String idp);
+    
+    PersonaModel findByEmail(String email);
 }

@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import com.saims.sgrf.enums.Rol;
 import com.saims.sgrf.model.UsuarioModel;
 
 public interface UsuarioDao extends JpaRepository<UsuarioModel,Long>{
@@ -18,6 +19,8 @@ public interface UsuarioDao extends JpaRepository<UsuarioModel,Long>{
 	
 	Optional<UsuarioModel>findByUsuario(String usuario);
 	Optional<UsuarioModel>findByEstado(boolean estado);
+	
+	List<UsuarioModel>findByRol(Rol rol);
 	
 	@Query(value = "select * from usuario where estado=?",nativeQuery=true)
 	List<UsuarioModel>findEstado(boolean estado);

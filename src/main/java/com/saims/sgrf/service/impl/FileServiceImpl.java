@@ -14,6 +14,7 @@ import com.saims.sgrf.service.FileService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.coobird.thumbnailator.Thumbnails;
+import net.coobird.thumbnailator.geometry.Positions;
 
 @Service
 @RequiredArgsConstructor
@@ -56,7 +57,8 @@ public class FileServiceImpl implements FileService{
 
             // Procesar y guardar con Thumbnailator
             Thumbnails.of(file.getInputStream())
-                    .width(ancho)
+                    .size(ancho,ancho)
+                    .crop(Positions.CENTER)
                     .keepAspectRatio(true)
                     .outputFormat(extension)
                     .toFile(rutaDestino.toFile());

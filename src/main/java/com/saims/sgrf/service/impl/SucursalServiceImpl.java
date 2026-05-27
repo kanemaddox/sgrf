@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 
 import com.saims.sgrf.config.Personalizer;
 import com.saims.sgrf.dao.SucursalDao;
-import com.saims.sgrf.dto.DatosDtoRequest;
-import com.saims.sgrf.dto.SucursalDtoResponse;
+import com.saims.sgrf.dto.DatosDto;
+import com.saims.sgrf.dto.SucursalDto;
 import com.saims.sgrf.model.SucursalModel;
 import com.saims.sgrf.service.SucursalService;
 
@@ -36,15 +36,15 @@ public class SucursalServiceImpl implements SucursalService {
      * ✔ Si no existe, crea una nueva sucursal
      */
     @Transactional
-    public SucursalModel createOrGet(DatosDtoRequest datosDtoRequest) {
+    public SucursalModel createOrGet(DatosDto.Request request) {
 
-        String codigoSucursal = this.personalizer.normalizer(datosDtoRequest.getCodigoSucursal());
+        String codigoSucursal = this.personalizer.normalizer(request.getCodigoSucursal());
 
         return this.sucursalDao.findByCodigo(codigoSucursal)
                 .orElseGet(() -> {
                     SucursalModel nuevaSucursal = new SucursalModel();
                     nuevaSucursal.setCodigo(codigoSucursal);
-                    nuevaSucursal.setNombre(this.personalizer.normalizer(datosDtoRequest.getNombreSucursal()));
+                    nuevaSucursal.setNombre(this.personalizer.normalizer(request.getNombreSucursal()));
                     nuevaSucursal.setPrefijo(this.personalizer.generatePrefijo(codigoSucursal));
                     return sucursalDao.save(nuevaSucursal);
                 });
@@ -55,7 +55,7 @@ public class SucursalServiceImpl implements SucursalService {
      * ⚠ Usar solo cuando se tenga certeza de que no existe
      */
     @Transactional
-    public SucursalDtoResponse create(SucursalDtoResponse response) {
+    public SucursalDto.Response create(SucursalDto.Response response) {
     	SucursalModel sucursal = new SucursalModel();
     	sucursal.setNombre(this.personalizer.normalizer(response.getNombre()));
     	sucursal.setCodigo(this.personalizer.normalizer(response.getCodigo()));
@@ -72,7 +72,7 @@ public class SucursalServiceImpl implements SucursalService {
      * 📌 Obtiene una sucursal por ID
      */
     @Transactional
-    public SucursalDtoResponse getSucursal(Long id) {
+    public SucursalDto.Response getSucursal(Long id) {
         
     	SucursalModel sucursal =  this.sucursalDao.findById(id)
                 .orElseThrow(() -> new RuntimeException("Sucursal no encontrada con ID: " + id));
@@ -84,8 +84,8 @@ public class SucursalServiceImpl implements SucursalService {
     /**
      * 📌 Obtiene todas las sucursales
      */
-    public List<SucursalDtoResponse> getAll() {
-    	List<SucursalDtoResponse> sucursales = this.sucursalDao.findAll().stream()
+    public List<SucursalDto.Response> findAll() {
+    	List<SucursalDto.Response> sucursales = this.sucursalDao.findAll().stream()
     			.map(sucursal->this.modelToResponse(sucursal))
     			.collect(Collectors.toList());
         return sucursales;
@@ -94,7 +94,7 @@ public class SucursalServiceImpl implements SucursalService {
     /**
      * 📌 Busca una sucursal por código
      */
-    public SucursalDtoResponse getByCodigo(String codigo) {
+    public SucursalDto.Response getByCodigo(String codigo) {
     	SucursalModel sucursal = sucursalDao.findByCodigo(this.personalizer.normalizer(codigo))
         .orElseThrow(() -> new RuntimeException("Sucursal no encontrada con código: " + codigo));
         return this.modelToResponse(sucursal) ;
@@ -103,7 +103,7 @@ public class SucursalServiceImpl implements SucursalService {
      * 📌 Búsqueda por nombre
      */
     @Transactional
-    public SucursalDtoResponse findByNombre(String nombre) {
+    public SucursalDto.Response findByNombre(String nombre) {
 
         SucursalModel sucursal = this.sucursalDao.findByNombre(this.personalizer.normalizer(nombre))
                 .orElseThrow(() -> new RuntimeException("Sucursal no encontrada"));
@@ -126,7 +126,7 @@ public class SucursalServiceImpl implements SucursalService {
      * 📌 Actualiza los datos de una sucursal
      */
     @Transactional
-    public SucursalDtoResponse update(SucursalDtoResponse response) {
+    public SucursalDto.Response update(SucursalDto.Response response) {
 
         SucursalModel sucursal = getId(response.getId());
 
@@ -155,8 +155,8 @@ public class SucursalServiceImpl implements SucursalService {
     // 🔴 Metodos Auxiliares
     // =========================
     
-    private SucursalDtoResponse modelToResponse(SucursalModel sucursal) {
-    	return (this.modelMapper.map(sucursal, SucursalDtoResponse.class));
+    private SucursalDto.Response modelToResponse(SucursalModel sucursal) {
+    	return (this.modelMapper.map(sucursal, SucursalDto.Response.class));
     }
     
     private SucursalModel getId(Long id) {

@@ -5,9 +5,8 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.saims.sgrf.dto.BancoDtoRequest;
-import com.saims.sgrf.dto.BancoDtoResponse;
-import com.saims.sgrf.dto.DatosDtoRequest;
+import com.saims.sgrf.dto.BancoDto;
+import com.saims.sgrf.dto.DatosDto;
 import com.saims.sgrf.model.BancoModel;
 
 /**
@@ -29,7 +28,7 @@ public interface BancoService {
      * @param request Datos necesarios para crear el banco
      * @return BancoDtoResponse con la información del banco creado
      */
-    BancoDtoResponse createBanco(BancoDtoRequest request);
+    BancoDto.Response createBanco(BancoDto.Request request);
 
     /**
      * 🔍 Busca un banco por nombre o lo crea si no existe.
@@ -37,7 +36,7 @@ public interface BancoService {
      * @param nombre Nombre del banco
      * @return Entidad BancoModel existente o recién creada
      */
-    BancoModel createOrGet(DatosDtoRequest request);
+    BancoModel createOrGet(DatosDto.Request request);
 
     /**
      * 🔎 Obtiene un banco por su ID.
@@ -45,14 +44,14 @@ public interface BancoService {
      * @param id Identificador del banco
      * @return BancoDtoResponse con los datos encontrados
      */
-    BancoDtoResponse getById(Long id);
+    BancoDto.Response getById(Long id);
 
     /**
      * 📋 Lista todos los bancos.
      *
      * @return Lista de BancoDtoResponse
      */
-    List<BancoDtoResponse> getAll();
+    List<BancoDto.Response> getAll();
 
     /**
      * 📄 Obtiene todos los bancos de forma paginada.
@@ -60,7 +59,7 @@ public interface BancoService {
      * @param pageable Configuración de paginación (número de página, tamaño, orden)
      * @return Página de BancoDtoResponse
      */
-    Page<BancoDtoResponse> getAllPaginated(Pageable pageable);
+    Page<BancoDto.Response> getAllPaginated(Pageable pageable);
 
     /**
      * 🔍 Busca un banco por su nombre.
@@ -68,7 +67,7 @@ public interface BancoService {
      * @param nombre Nombre del banco
      * @return BancoDtoResponse encontrado
      */
-    BancoDtoResponse findByNombre(String nombre);
+    BancoDto.Response findByNombre(String nombre);
 
     /**
      * ❌ Elimina un banco por su ID.
@@ -84,7 +83,7 @@ public interface BancoService {
      * @param nuevoNombre Nuevo nombre del banco
      * @return BancoDtoResponse actualizado
      */
-    BancoDtoResponse updateNombre(BancoDtoResponse response);
+    BancoDto.Response updateNombre(BancoDto.Response response);
 
     /**
      * 🔄 Actualiza completamente los datos de un banco.
@@ -93,5 +92,5 @@ public interface BancoService {
      * @param request DTO con los nuevos datos
      * @return BancoDtoResponse actualizado
      */
-    BancoDtoResponse update(BancoDtoResponse response);
+    BancoDto.Response update(BancoDto.Response response);
 }

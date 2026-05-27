@@ -8,7 +8,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -36,25 +36,10 @@ import lombok.Setter;
 public class EmpleadoModel extends StatusEntity{
 
     // 🔗 Relación con Persona
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "id_persona", nullable = false)
     private PersonaModel persona;
-
-    // 🔗 Relación con Cargo
-    @ManyToOne
-    @JoinColumn(name = "id_cargo", nullable = false)
-    private CargoModel cargo;
-
-    // 🔗 Relación con Sucursal
-    @ManyToOne
-    @JoinColumn(name = "id_sucursal", nullable = false)
-    private SucursalModel sucursal;
     
-    // numero de identificacion del jefe
-    @Column(name = "idp_jefe", nullable = false)
-    private String idpJefe;
-    
-
     // 🧠 Tipo de empleado (mejor que int )
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

@@ -5,9 +5,8 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.saims.sgrf.dto.DatosDtoRequest;
-import com.saims.sgrf.dto.ProfesionDtoRequest;
-import com.saims.sgrf.dto.ProfesionDtoResponse;
+import com.saims.sgrf.dto.DatosDto;
+import com.saims.sgrf.dto.ProfesionDto;
 import com.saims.sgrf.model.ProfesionModel;
 
 /**
@@ -28,7 +27,7 @@ public interface ProfesionService {
      * @param datosDtoRequest Datos necesarios para la creación o búsqueda.
      * @return ProfesionModel existente o recién creada.
      */
-    ProfesionModel createOrGet(DatosDtoRequest datosDtoRequest);
+    ProfesionModel createOrGet(DatosDto.Request request);
 
     /**
      * 📌 Crea una nueva profesión.
@@ -36,14 +35,14 @@ public interface ProfesionService {
      * @param request DTO con los datos de la profesión.
      * @return ProfesionDtoResponse con la información creada.
      */
-    ProfesionDtoResponse createProfesion(ProfesionDtoRequest request);
+    ProfesionDto.Response createProfesion(ProfesionDto.Request request);
 
     /**
      * 📌 Obtiene todas las profesiones registradas.
      * 
      * @return Lista de ProfesionDtoResponse.
      */
-    List<ProfesionDtoResponse> getAll();
+    List<ProfesionDto.Response> getAll();
 
     /**
      * 📌 Obtiene una profesión por su ID.
@@ -51,7 +50,7 @@ public interface ProfesionService {
      * @param id Identificador único de la profesión.
      * @return ProfesionDtoResponse correspondiente.
      */
-    ProfesionDtoResponse getById(Long id);
+    ProfesionDto.Response getById(Long id);
 
     /**
      * 📌 Busca una profesión por su nombre.
@@ -59,7 +58,7 @@ public interface ProfesionService {
      * @param nombre Nombre de la profesión.
      * @return ProfesionDtoResponse encontrada.
      */
-    ProfesionDtoResponse findByNombre(String nombre);
+    ProfesionDto.Response findByNombre(String nombre);
 
     /**
      * 📌 Verifica si existe una profesión por su nombre.
@@ -77,7 +76,7 @@ public interface ProfesionService {
      * @param pageable Configuración de paginación.
      * @return Página de ProfesionDtoResponse.
      */
-    Page<ProfesionDtoResponse> getAllPaginated(Pageable pageable);
+    Page<ProfesionDto.Response> getAllPaginated(Pageable pageable);
 
     /**
      * 📌 Actualiza los datos de una profesión existente.
@@ -85,7 +84,7 @@ public interface ProfesionService {
      * @param response Datos actualizados de la profesión.
      * @return ProfesionDtoResponse con los cambios aplicados.
      */
-    ProfesionDtoResponse update(ProfesionDtoResponse response);
+    ProfesionDto.Response update(ProfesionDto.Response response);
 
     /**
      * 📌 Elimina una profesión por su ID.

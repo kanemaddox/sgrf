@@ -16,5 +16,7 @@ public interface PersonaDao extends JpaRepository<PersonaModel,Long>{
 	
 	@Query(value = "select * from persona where id=?",nativeQuery=true)
 	PersonaModel getId(Long id);
+	
+	Optional<PersonaModel> findByEmail(String email);
 
 }

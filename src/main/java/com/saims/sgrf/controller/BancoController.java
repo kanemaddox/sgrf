@@ -11,8 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.saims.sgrf.dto.BancoDtoRequest;
-import com.saims.sgrf.dto.BancoDtoResponse;
+import com.saims.sgrf.dto.BancoDto;
 import com.saims.sgrf.service.BancoService;
 
 import lombok.RequiredArgsConstructor;
@@ -25,7 +24,7 @@ public class BancoController {
 	private final BancoService bancoService;
 	
 	@PostMapping("/create")
-	public ResponseEntity<BancoDtoResponse> create(@RequestBody BancoDtoRequest request){
+	public ResponseEntity<BancoDto.Response> create(@RequestBody BancoDto.Request request){
 		try {
 			return new ResponseEntity<>(this.bancoService.createBanco(request) ,HttpStatus.CREATED);
 		}catch (Exception e) {
@@ -34,7 +33,7 @@ public class BancoController {
 	}
 	
 	@GetMapping("/getLista")
-	public ResponseEntity<List<BancoDtoResponse>> getLista(){
+	public ResponseEntity<List<BancoDto.Response>> getLista(){
 		try {
 			return new ResponseEntity<>(this.bancoService.getAll() ,HttpStatus.OK);
 		}catch (Exception e) {
@@ -43,7 +42,7 @@ public class BancoController {
 	}
 	
 	@PutMapping("/update")
-	public ResponseEntity<BancoDtoResponse>update(@RequestBody BancoDtoResponse response){
+	public ResponseEntity<BancoDto.Response>update(@RequestBody BancoDto.Response response){
 		try {
 			return new ResponseEntity<>(this.bancoService.update(response),HttpStatus.OK);
 		}catch(Exception e) {

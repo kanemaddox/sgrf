@@ -11,21 +11,20 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.saims.sgrf.dto.CargoDtoRequest;
-import com.saims.sgrf.dto.CargoDtoResponse;
+import com.saims.sgrf.dto.CargoDto;
 import com.saims.sgrf.service.CargoService;
 
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/erpm/cargo")
+@RequestMapping("/sgrf/user/cargo")
 @RequiredArgsConstructor
 public class CargoController {
 	
 	private final CargoService cargoService;
 	
 	@PostMapping("/create")
-	public ResponseEntity<CargoDtoResponse>create(@RequestBody CargoDtoRequest request){
+	public ResponseEntity<CargoDto.Response>create(@RequestBody CargoDto.Request request){
 		try {
 			return new ResponseEntity<>(this.cargoService.createCargo(request),HttpStatus.CREATED);
 		}catch(Exception e) {
@@ -34,7 +33,7 @@ public class CargoController {
 	}
 	
 	@GetMapping("/getLista")
-	public ResponseEntity<List<CargoDtoResponse>>getLista(){
+	public ResponseEntity<List<CargoDto.Response>>getLista(){
 		try {
 			return new ResponseEntity<>(this.cargoService.getAll(),HttpStatus.OK);
 		}catch(Exception e) {
@@ -43,7 +42,7 @@ public class CargoController {
 	}
 	
 	@PutMapping("/update")
-	public ResponseEntity<CargoDtoResponse>update(@RequestBody CargoDtoResponse response){
+	public ResponseEntity<CargoDto.Response>update(@RequestBody CargoDto.Response response){
 		try {
 			return new ResponseEntity<>(this.cargoService.update(response),HttpStatus.OK);
 		}catch(Exception e) {

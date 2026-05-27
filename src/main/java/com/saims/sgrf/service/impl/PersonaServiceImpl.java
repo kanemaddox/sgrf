@@ -8,9 +8,8 @@ import org.springframework.stereotype.Service;
 
 import com.saims.sgrf.config.Personalizer;
 import com.saims.sgrf.dao.PersonaDao;
-import com.saims.sgrf.dto.DatosDtoRequest;
-import com.saims.sgrf.dto.PersonaDtoRequest;
-import com.saims.sgrf.dto.PersonaDtoResponse;
+import com.saims.sgrf.dto.DatosDto;
+import com.saims.sgrf.dto.PersonaDto;
 import com.saims.sgrf.model.PersonaModel;
 import com.saims.sgrf.service.PersonaService;
 
@@ -31,25 +30,26 @@ public class PersonaServiceImpl implements PersonaService {
      * @return PersonaModel persistida
      */
     @Transactional
-    public PersonaModel createOrGet(DatosDtoRequest datosDtoRequest) {
+    public PersonaModel createOrGet(DatosDto.Request request) {
 
-    	String idp = this.personalizer.normalizerIdp(datosDtoRequest.getIdp());
+    	String idp = this.personalizer.normalizerIdp(request.getIdp());
         
         PersonaModel personaModel = personaDao.findByIdp(idp)
                 .orElseGet(() -> {
                     PersonaModel nuevo = new PersonaModel();
                     nuevo.setIdp(idp);
-                    nuevo.setNombre(this.personalizer.normalizerName(datosDtoRequest.getNombre()));
-                    nuevo.setPaterno(this.personalizer.normalizerName(datosDtoRequest.getPaterno()));
-                    nuevo.setMaterno(this.personalizer.normalizerName(datosDtoRequest.getMaterno()));
-                    nuevo.setEmail(this.personalizer.normalizerLower(datosDtoRequest.getEmail()));
+                    nuevo.setNombre(this.personalizer.normalizerName(request.getNombre()));
+                    nuevo.setPaterno(this.personalizer.normalizerName(request.getPaterno()));
+                    nuevo.setMaterno(this.personalizer.normalizerName(request.getMaterno()));
+                    nuevo.setEmail(this.personalizer.normalizerLower(request.getEmail()));
+                    nuevo.setFoto("usuario.png");
                     return personaDao.save(nuevo);
                 });
 
         // Actualización de datos si cambian
         boolean updated = false;
 
-        String email = this.personalizer.normalizerLower(datosDtoRequest.getEmail());
+        String email = this.personalizer.normalizerLower(request.getEmail());
 
         if (email != null && !email.equals(personaModel.getEmail())) {
             personaModel.setEmail(email);
@@ -66,7 +66,7 @@ public class PersonaServiceImpl implements PersonaService {
     /**
      * Crea una persona y retorna DTO de respuesta
      */
-    public PersonaModel createPersona(PersonaDtoRequest request) {
+    public PersonaModel createPersona(PersonaDto.Request request) {
 
         String idp = this.personalizer.normalizer(request.getIdp());
 
@@ -86,7 +86,7 @@ public class PersonaServiceImpl implements PersonaService {
      * Obtiene una persona por ID
      */
     @Transactional
-    public PersonaDtoResponse getById(Long id) {
+    public PersonaDto.Response getById(Long id) {
         PersonaModel persona = this.personaDao.getId(id);
         return this.modelToResponse(persona);
     }
@@ -95,7 +95,7 @@ public class PersonaServiceImpl implements PersonaService {
      * Obtiene una persona por IDP
      */
     @Transactional
-    public PersonaDtoResponse findByIdp(String idp) {
+    public PersonaDto.Response findByIdp(String idp) {
 
         PersonaModel persona = personaDao.findByIdp(this.personalizer.normalizer(idp))
                 .orElseThrow(() -> new RuntimeException("Persona no encontrada"));
@@ -107,7 +107,7 @@ public class PersonaServiceImpl implements PersonaService {
      * Lista todas las personas
      */
     @Transactional
-    public List<PersonaDtoResponse> getAll() {
+    public List<PersonaDto.Response> getAll() {
 
         return personaDao.findAll().stream()
                 .map(persona -> this.modelToResponse(persona))
@@ -123,7 +123,7 @@ public class PersonaServiceImpl implements PersonaService {
      * Actualiza una persona
      */
     @Transactional
-    public PersonaDtoResponse updateFull(PersonaDtoResponse response) {
+    public PersonaDto.Response updateFull(PersonaDto.Response response) {
 
         PersonaModel persona = personaDao.findByIdp(this.personalizer.normalizer(response.getIdp()))
                 .orElseThrow(() -> new RuntimeException("Persona no encontrada"));
@@ -145,13 +145,25 @@ public class PersonaServiceImpl implements PersonaService {
      * Actualiza una persona
      */
     @Transactional
-    public PersonaDtoResponse updateCelular(PersonaDtoResponse response) {
+    public PersonaDto.Response updateCelular(PersonaDto.Response response) {
 
         PersonaModel persona = this.personaDao.getId(response.getId());
         persona.setCelular(response.getCelular());
         this.personaDao.save(persona);
 
         return this.modelToResponse(persona);
+    }
+    
+    @Transactional
+    public PersonaModel findByEmail(String email) {
+
+        PersonaModel persona = this.personaDao.findByEmail(this.personalizer.normalizerLower(email))
+        		.orElseGet(()->{
+        			PersonaModel nuevo = new PersonaModel();
+        			nuevo.setEmail("0");
+        			return nuevo;
+        		});
+        return persona;
     }
     
 
@@ -171,8 +183,8 @@ public class PersonaServiceImpl implements PersonaService {
         return this.personaDao.findByIdp(this.personalizer.normalizer(idp)).isPresent();
     }
     
-    private PersonaDtoResponse modelToResponse(PersonaModel persona) {
-    	return (this.modelMapper.map(persona, PersonaDtoResponse.class));
+    private PersonaDto.Response modelToResponse(PersonaModel persona) {
+    	return (this.modelMapper.map(persona, PersonaDto.Response.class));
     }
     
 

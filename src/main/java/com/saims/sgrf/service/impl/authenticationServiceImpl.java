@@ -6,9 +6,8 @@ import org.springframework.stereotype.Service;
 
 import com.saims.sgrf.config.Personalizer;
 import com.saims.sgrf.dao.UsuarioDao;
-import com.saims.sgrf.dto.LoginDtoRequest;
-import com.saims.sgrf.dto.LoginDtoResponse;
-import com.saims.sgrf.dto.PersonaDtoResponse;
+import com.saims.sgrf.dto.LoginDto;
+import com.saims.sgrf.dto.PersonaDto;
 import com.saims.sgrf.dto.UserDto;
 import com.saims.sgrf.enums.Rol;
 import com.saims.sgrf.model.UsuarioModel;
@@ -26,7 +25,7 @@ public class authenticationServiceImpl implements authenticationService{
 	private Personalizer personalizer = new Personalizer();
 
 	
-	public LoginDtoResponse login(LoginDtoRequest request){
+	public LoginDto.Response login(LoginDto.Request request){
 		String password ="";
 		try {
 			password = this.personalizer.getPass(request.getPass());
@@ -34,7 +33,7 @@ public class authenticationServiceImpl implements authenticationService{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		LoginDtoResponse response = new LoginDtoResponse();
+		LoginDto.Response response = new LoginDto.Response();
 		response.setUser("0");
 		
 		String idp = this.personalizer.normalizer(request.getUser()); 
@@ -48,14 +47,21 @@ public class authenticationServiceImpl implements authenticationService{
 		
 		
 		if(usuario.getEstado()) {
+			usuario.setIntentos(0);
+			this.usuarioDao.save(usuario);
+			
 			response.setIdUsuario(usuario.getId());
 			
 			response.setEmail(usuario.getPersona().getEmail());
 			response.setUser(usuario.getUsuario());
 			response.setNombre(usuario.getPersona().getNombre());
-			response.setImagen(usuario.getImagen());
+			response.setImagen(usuario.getPersona().getFoto());
+			response.setPass((usuario.getUsuario().equals(request.getPass()))?true:false);
+			response.setPernicions(usuario.getPernicions());
+			response.setRol(usuario.getRol());
+		
 			
-			PersonaDtoResponse persona = new PersonaDtoResponse();
+			PersonaDto.Response persona = new PersonaDto.Response();
 			persona.setId(usuario.getPersona().getId());
 			persona.setIdp(usuario.getPersona().getIdp());
 			persona.setNombre(usuario.getPersona().getNombre());
@@ -65,7 +71,6 @@ public class authenticationServiceImpl implements authenticationService{
 			persona.setEmail(usuario.getPersona().getEmail());
 			persona.setFechaNacimiento(usuario.getPersona().getFechaNacimiento());
 			persona.setSexo(usuario.getPersona().getSexo());
-			
 			response.setPersona(persona);
 			
 			UserDto user = new UserDto();
@@ -78,7 +83,29 @@ public class authenticationServiceImpl implements authenticationService{
 			var refresh = jwtService.generateRefreshToken(new HashMap<>(),user);
 			response.setToken(jwt);
 			response.setRefresh(refresh);
-		}				
+		}
+		else {
+			
+			usuario = this.usuarioDao.findByUsuario(request.getUser())
+					.orElseGet(()->{
+						UsuarioModel nuevo = new UsuarioModel();
+						nuevo.setEstado(false);
+						nuevo.setUsuario("no-----////");
+						return nuevo;
+					});
+			if(usuario.getUsuario().equals(request.getUser())){
+				usuario.setIntentos(usuario.getIntentos()+1);
+				if(usuario.getIntentos()>=3)
+					usuario.setEstado(false);
+				this.usuarioDao.save(usuario);
+				response.setIntentos(usuario.getIntentos());
+			}
+			else {
+				System.out.println("Usuario no ================");
+				response.setNombre("El Usuario NO Existe");
+			}
+				
+		}
 		return response;
 	}
 }

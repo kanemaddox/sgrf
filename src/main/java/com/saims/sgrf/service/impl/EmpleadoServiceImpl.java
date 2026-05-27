@@ -7,18 +7,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.saims.sgrf.dao.CargoDao;
 import com.saims.sgrf.dao.EmpleadoDao;
 import com.saims.sgrf.dao.PersonaDao;
-import com.saims.sgrf.dao.SucursalDao;
-import com.saims.sgrf.dto.DatosDtoRequest;
-import com.saims.sgrf.dto.EmpleadoDtoRequest;
-import com.saims.sgrf.dto.EmpleadoDtoResponse;
+import com.saims.sgrf.dto.DatosDto;
+import com.saims.sgrf.dto.EmpleadoDto;
 import com.saims.sgrf.enums.TipoEmpleado;
-import com.saims.sgrf.model.CargoModel;
 import com.saims.sgrf.model.EmpleadoModel;
 import com.saims.sgrf.model.PersonaModel;
-import com.saims.sgrf.model.SucursalModel;
 import com.saims.sgrf.service.EmpleadoService;
 
 import jakarta.transaction.Transactional;
@@ -28,171 +23,183 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class EmpleadoServiceImpl implements EmpleadoService {
 
-    private final EmpleadoDao empleadoDao;
-    private final ModelMapper modelMapper;
-    private final PersonaDao personaDao;
-    private final CargoDao cargoDao;
-    private final SucursalDao sucursalDao;
+	private final EmpleadoDao empleadoDao;
+	private final ModelMapper modelMapper;
+	private final PersonaDao personaDao;
 
-    /**
-     * Método principal para registrar o recuperar un empleado.
-     * 
-     * Flujo:
-     * 1. Verifica si ya existe un empleado asociado a la persona.
-     * 2. Si existe:
-     *    - Retorna el empleado existente (opcionalmente se podría actualizar).
-     * 3. Si no existe:
-     *    - Crea un nuevo empleado con los datos proporcionados.
-     * 
-     * @param personaModel   Persona asociada al empleado
-     * @param cargoModel     Cargo del empleado
-     * @param profesionModel Profesión del empleado
-     * @param sucursalModel  Sucursal donde trabaja
-     * @param datosDtoRequest Datos adicionales
-     * @return EmpleadoModel persistido o existente
-     */
-    @Transactional
-    public EmpleadoModel addDatos(PersonaModel personaModel,CargoModel cargoModel,SucursalModel sucursalModel,DatosDtoRequest datosDtoRequest) {
+	/**
+	 * Método principal para registrar o recuperar un empleado.
+	 * 
+	 * Flujo: 1. Verifica si ya existe un empleado asociado a la persona. 2. Si
+	 * existe: - Retorna el empleado existente (opcionalmente se podría actualizar).
+	 * 3. Si no existe: - Crea un nuevo empleado con los datos proporcionados.
+	 * 
+	 * @param personaModel    Persona asociada al empleado
+	 * @param cargoModel      Cargo del empleado
+	 * @param profesionModel  Profesión del empleado
+	 * @param sucursalModel   Sucursal donde trabaja
+	 * @param datosDtoRequest Datos adicionales
+	 * @return EmpleadoModel persistido o existente
+	 */
+	@Transactional
+	public EmpleadoModel addDatos(PersonaModel personaModel, DatosDto.Request request) {
 
-        return this.empleadoDao.findByPersona_Id(personaModel.getId())
-                .map(empleadoExistente -> actualizarEmpleado(empleadoExistente, cargoModel, sucursalModel, datosDtoRequest))
-                .orElseGet(() -> crearEmpleado(personaModel, cargoModel, sucursalModel, datosDtoRequest));
-    }
-    
-    @Transactional
-    public EmpleadoDtoResponse create(EmpleadoDtoRequest request) {
-    	PersonaModel persona = this.personaDao.getId(request.getIdPersona());
-    	CargoModel cargo = this.cargoDao.getId(request.getIdCargo());
-    	SucursalModel sucursal = this.sucursalDao.getId(request.getIdSucursal());
-    	
-    	EmpleadoModel empleado = new EmpleadoModel();
-    	empleado.setCargo(cargo);
-    	empleado.setPersona(persona);
-    	empleado.setSucursal(sucursal);
-    	empleado.setEstado(request.getEstado());
-    	empleado.setTipo(request.getTipoEmpleado());
-    	this.empleadoDao.save(empleado);
-    	return this.modelToResponse(empleado);
-    }
+		return this.empleadoDao.findByPersona_Id(personaModel.getId()).map(empleado -> {
+			empleado.setTipo(TipoEmpleado.SUBORDINADO);
+			empleado.setEstado(true);
+			if (request.getTipo())
+				empleado.setTipo(TipoEmpleado.JEFE);
+			return this.empleadoDao.save(empleado);
+		}).orElseGet(() -> crearEmpleado(personaModel, request));
+	}
 
-    /**
-     * Crea un nuevo empleado con valores por defecto.
-     */
-    private EmpleadoModel crearEmpleado(PersonaModel personaModel,CargoModel cargoModel,SucursalModel sucursalModel,DatosDtoRequest datosDtoRequest) {
+	@Transactional
+	public EmpleadoDto.Response create(EmpleadoDto.Request request) {
+		PersonaModel persona = this.personaDao.getId(request.getIdPersona());
 
-        EmpleadoModel nuevo = new EmpleadoModel();
-        nuevo.setPersona(personaModel);
-        nuevo.setCargo(cargoModel);
-        nuevo.setSucursal(sucursalModel);
-        nuevo.setEstado(true);
-        nuevo.setIdpJefe(datosDtoRequest.getIdpJefe());
-        nuevo.setTipo(TipoEmpleado.SUBORDINADO);
+		EmpleadoModel empleado = new EmpleadoModel();
+		empleado.setPersona(persona);
+		empleado.setEstado(request.getEstado());
+		empleado.setTipo(request.getTipoEmpleado());
+		this.empleadoDao.save(empleado);
+		return this.modelToResponse(empleado);
+	}
 
-        return empleadoDao.save(nuevo);
-    }
+	/**
+	 * Crea un nuevo empleado con valores por defecto.
+	 */
+	private EmpleadoModel crearEmpleado(PersonaModel personaModel, DatosDto.Request request) {
 
-    /**
-     * Actualiza los datos de un empleado existente.
-     */
-    private EmpleadoModel actualizarEmpleado(EmpleadoModel empleado,CargoModel cargoModel,SucursalModel sucursalModel,DatosDtoRequest datosDtoRequest) {
+		EmpleadoModel nuevo = new EmpleadoModel();
+		nuevo.setPersona(personaModel);
+		nuevo.setEstado(true);
+		if (request.getTipo())
+			nuevo.setTipo(TipoEmpleado.JEFE);
+		else
+			nuevo.setTipo(TipoEmpleado.SUBORDINADO);
 
-        empleado.setCargo(cargoModel);
-        empleado.setSucursal(sucursalModel);
-        empleado.setIdpJefe(datosDtoRequest.getIdpJefe());
-        empleado.setEstado(true);
+		return empleadoDao.save(nuevo);
+	}
 
-        return this.empleadoDao.save(empleado);
-    }
+	/**
+	 * Obtiene un empleado por ID.
+	 */
+	@Transactional
+	public EmpleadoDto.Response getById(Long id) {
+		EmpleadoModel empleado = empleadoDao.findById(id)
+				.orElseThrow(() -> new RuntimeException("Empleado no encontrado con ID: " + id));
 
-    /**
-     * Obtiene un empleado por ID.
-     */
-    @Transactional
-    public EmpleadoDtoResponse getById(Long id) {
-        EmpleadoModel empleado = empleadoDao.findById(id)
-                .orElseThrow(() -> new RuntimeException("Empleado no encontrado con ID: " + id));
+		return this.modelToResponse(empleado);
+	}
 
-        return this.modelToResponse(empleado);
-    }
+	/**
+	 * Lista todos los empleados Response.
+	 */
+	@Transactional
+	public List<EmpleadoDto.Response> getAll() {
+		return empleadoDao.findAll().stream().map(emp -> this.modelToResponse(emp)).toList();
+	}
 
-    /**
-     * Lista todos los empleados Response.
-     */
-    @Transactional
-    public List<EmpleadoDtoResponse> getAll() {
-        return empleadoDao.findAll()
-                .stream()
-                .map(emp -> this.modelToResponse(emp))
-                .toList();
-    }
-    
-    /**
-     * Lista todos los empleados Response.
-     */
-    @Transactional
-    public List<EmpleadoModel> findAll() {
-        return empleadoDao.findAll();
-    }
+	@Transactional
+	public List<EmpleadoModel> findByTipo(TipoEmpleado tipo) {
+		List<EmpleadoModel> empleado = this.empleadoDao.findByTipo(tipo);
+		return empleado;
+	}
 
-    /**
-     * Lista empleados paginados.
-     */
-    @Transactional
-    public Page<EmpleadoDtoResponse> getAllPaginated(Pageable pageable) {
-        return empleadoDao.findAll(pageable)
-                .map(emp -> this.modelToResponse(emp));
-    }
+	@Transactional
+	public List<EmpleadoDto.Response> findByTipoResponse(TipoEmpleado tipo) {
+		List<EmpleadoDto.Response> empleados = this.empleadoDao.findByTipo(tipo).stream()
+				.map(empleado -> this.modelToResponse(empleado)).toList();
+		return empleados;
+	}
 
-    /**
-     * Busca un empleado por ID de persona.
-     */
-    @Transactional
-    public EmpleadoDtoResponse findByPersonaId(Long personaId) {
-        EmpleadoModel empleado = empleadoDao.findByPersona_Id(personaId)
-                .orElseThrow(() -> new RuntimeException("Empleado no encontrado para la persona"));
+	/**
+	 * Lista todos los empleados Response.
+	 */
+	@Transactional
+	public List<EmpleadoModel> findAll() {
+		return empleadoDao.findAll();
+	}
 
-        return this.modelToResponse(empleado);
-    }
+	/**
+	 * Lista empleados paginados.
+	 */
+	@Transactional
+	public Page<EmpleadoDto.Response> getAllPaginated(Pageable pageable) {
+		return empleadoDao.findAll(pageable).map(emp -> this.modelToResponse(emp));
+	}
 
-    /**
-     * Cambia el estado (activo/inactivo) de un empleado.
-     */
-    @Transactional
-    public void cambiarEstado(Long id, boolean estado) {
-        EmpleadoModel empleado = this.empleadoDao.findById(id)
-                .orElseThrow(() -> new RuntimeException("Empleado no encontrado"));
+	/**
+	 * Busca un empleado por ID de persona.
+	 */
+	@Transactional
+	public EmpleadoDto.Response findByPersonaId(Long personaId) {
+		EmpleadoModel empleado = empleadoDao.findByPersona_Id(personaId).orElseGet(() -> {
+			EmpleadoModel nuevo = new EmpleadoModel();
+			nuevo.setId(0L);
+			return nuevo;
+		});
 
-        empleado.setEstado(estado);
-        this.empleadoDao.save(empleado);
-    }
-    
-    @Transactional
-    public void setAllEstado(boolean estado) {
-        List<EmpleadoModel> empleados = this.empleadoDao.findAll();
-        empleados.forEach(e->{
-        	e.setEstado(estado);
-        });
-        
-        this.empleadoDao.saveAll(empleados);
-        
-    }
+		return this.modelToResponse(empleado);
+	}
+	
+	public EmpleadoModel findByPersonaIdModel(Long personaId) {
+		EmpleadoModel empleado = empleadoDao.findByPersona_Id(personaId).orElseGet(() -> {
+			EmpleadoModel nuevo = new EmpleadoModel();
+			nuevo.setId(0L);
+			return nuevo;
+		});
 
-    /**
-     * Elimina un empleado (borrado lógico recomendado).
-     */
-    @Transactional
-    public void delete(Long id) {
-        EmpleadoModel empleado = this.empleadoDao.findById(id)
-                .orElseThrow(() -> new RuntimeException("Empleado no encontrado"));
+		return empleado;
+	}
+	
+	@Transactional
+	public List<EmpleadoModel> findByEstado(boolean estado) {
+		List<EmpleadoModel> empleados = this.empleadoDao.findByEstado(estado);
+		return empleados;
+	}
 
-        empleado.setEstado(false); // borrado lógico
-        this.empleadoDao.save(empleado);
-    }
-    
-    /**
-     * 📌 Convierte Entity → DTO
-     */
-    private EmpleadoDtoResponse modelToResponse(EmpleadoModel empleado) {
-        return this.modelMapper.map(empleado, EmpleadoDtoResponse.class);
-    }
+	/**
+	 * Cambia el estado (activo/inactivo) de un empleado.
+	 */
+	@Transactional
+	public void cambiarEstado(Long id, boolean estado) {
+		EmpleadoModel empleado = this.empleadoDao.findById(id)
+				.orElseThrow(() -> new RuntimeException("Empleado no encontrado"));
+
+		empleado.setEstado(estado);
+		this.empleadoDao.save(empleado);
+	}
+
+	@Transactional
+	public void setAllEstado(boolean estado) {
+		List<EmpleadoModel> empleados = this.empleadoDao.findAll();
+		empleados.forEach(e -> {
+			e.setEstado(estado);
+		});
+
+		this.empleadoDao.saveAll(empleados);
+
+	}
+
+	/**
+	 * Elimina un empleado (borrado lógico recomendado).
+	 */
+	@Transactional
+	public void delete(Long id) {
+		EmpleadoModel empleado = this.empleadoDao.findById(id)
+				.orElseThrow(() -> new RuntimeException("Empleado no encontrado"));
+
+		empleado.setEstado(false); // borrado lógico
+		this.empleadoDao.save(empleado);
+	}
+
+	/**
+	 * 📌 Convierte Entity → DTO
+	 */
+	private EmpleadoDto.Response modelToResponse(EmpleadoModel empleado) {
+		return this.modelMapper.map(empleado, EmpleadoDto.Response.class);
+	}
+	
+	
 }

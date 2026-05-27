@@ -5,9 +5,8 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.saims.sgrf.dto.CargoDtoRequest;
-import com.saims.sgrf.dto.CargoDtoResponse;
-import com.saims.sgrf.dto.DatosDtoRequest;
+import com.saims.sgrf.dto.CargoDto;
+import com.saims.sgrf.dto.DatosDto;
 import com.saims.sgrf.model.CargoModel;
 
 /**
@@ -31,7 +30,7 @@ public interface CargoService {
      * @param datosDtoRequest Objeto que contiene los datos necesarios para crear o buscar el cargo.
      * @return CargoModel existente o recién creado.
      */
-    CargoModel createOrGet(DatosDtoRequest datosDtoRequest);
+    CargoModel createOrGet(DatosDto.Request request);
 
     /**
      * Crea un nuevo Cargo a partir de un DTO de entrada.
@@ -39,7 +38,7 @@ public interface CargoService {
      * @param cargoDtoRequest DTO con los datos del cargo a registrar.
      * @return CargoDtoResponse DTO con la información del cargo creado.
      */
-    CargoDtoResponse createCargo(CargoDtoRequest cargoDtoRequest);
+    CargoDto.Response createCargo(CargoDto.Request request);
 
     /**
      * Obtiene todos los cargos activos.
@@ -48,14 +47,14 @@ public interface CargoService {
      * 
      * @return Lista de cargos activos.
      */
-    List<CargoDtoResponse> getAllActive();
+    List<CargoDto.Response> getAllActive();
 
     /**
      * Obtiene todos los cargos sin filtro de estado.
      * 
      * @return Lista completa de cargos.
      */
-    List<CargoDtoResponse> getAll();
+    List<CargoDto.Response> getAll();
 
     /**
      * Obtiene una lista paginada de cargos.
@@ -65,7 +64,7 @@ public interface CargoService {
      * @param pageable Objeto que contiene la configuración de paginación.
      * @return Página de cargos.
      */
-    Page<CargoDtoResponse> getAllPaginated(Pageable pageable);
+    Page<CargoDto.Response> getAllPaginated(Pageable pageable);
 
     /**
      * Busca un cargo por su ID.
@@ -73,7 +72,7 @@ public interface CargoService {
      * @param id Identificador único del cargo.
      * @return DTO del cargo encontrado.
      */
-    CargoDtoResponse getById(Long id);
+    CargoDto.Response getById(Long id);
 
     /**
      * Busca un cargo por su nombre.
@@ -81,7 +80,7 @@ public interface CargoService {
      * @param nombre Nombre del cargo.
      * @return DTO del cargo encontrado.
      */
-    CargoDtoResponse findByNombre(String nombre);
+    CargoDto.Response findByNombre(String nombre);
 
     /**
      * Actualiza el nombre de un cargo existente.
@@ -90,7 +89,7 @@ public interface CargoService {
      * @param nuevoNombre Nuevo nombre del cargo.
      * @return DTO del cargo actualizado.
      */
-    CargoDtoResponse update(CargoDtoResponse response);
+    CargoDto.Response update(CargoDto.Response response);
 
     /**
      * Elimina un cargo por su ID.

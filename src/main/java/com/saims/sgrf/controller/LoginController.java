@@ -7,8 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.saims.sgrf.dto.LoginDtoRequest;
-import com.saims.sgrf.dto.LoginDtoResponse;
+import com.saims.sgrf.dto.LoginDto;
 import com.saims.sgrf.service.authenticationService;
 
 import lombok.RequiredArgsConstructor;
@@ -21,7 +20,7 @@ public class LoginController {
 	private final authenticationService authenticationService;
 	
 	@PostMapping ("/login")
-	public ResponseEntity<LoginDtoResponse>login(@RequestBody LoginDtoRequest request){
+	public ResponseEntity<LoginDto.Response>login(@RequestBody LoginDto.Request request){
 		try {
 			return new ResponseEntity<>(this.authenticationService.login(request),HttpStatus.OK);
 		}catch (Exception e) {

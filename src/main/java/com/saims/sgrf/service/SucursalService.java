@@ -2,8 +2,8 @@ package com.saims.sgrf.service;
 
 import java.util.List;
 
-import com.saims.sgrf.dto.DatosDtoRequest;
-import com.saims.sgrf.dto.SucursalDtoResponse;
+import com.saims.sgrf.dto.DatosDto;
+import com.saims.sgrf.dto.SucursalDto;
 import com.saims.sgrf.model.SucursalModel;
 
 /**
@@ -24,7 +24,7 @@ public interface SucursalService {
      * @param datosDtoRequest Objeto con los datos necesarios para la creación
      * @return SucursalModel entidad creada o existente
      */
-    SucursalModel createOrGet(DatosDtoRequest datosDtoRequest);
+    SucursalModel createOrGet(DatosDto.Request request);
 
     /**
      * 📌 Crea una nueva sucursal
@@ -32,7 +32,7 @@ public interface SucursalService {
      * @param response DTO con los datos de la sucursal
      * @return SucursalDtoResponse sucursal creada
      */
-    SucursalDtoResponse create(SucursalDtoResponse response);
+    SucursalDto.Response create(SucursalDto.Response response);
 
 
     // =========================
@@ -45,14 +45,14 @@ public interface SucursalService {
      * @param id Identificador único de la sucursal
      * @return SucursalDtoResponse sucursal encontrada
      */
-    SucursalDtoResponse getSucursal(Long id);
+    SucursalDto.Response getSucursal(Long id);
 
     /**
      * 📌 Obtiene todas las sucursales
      * 
      * @return Lista de sucursales
      */
-    List<SucursalDtoResponse> getAll();
+    List<SucursalDto.Response> findAll();
 
     /**
      * 📌 Busca una sucursal por su código
@@ -60,7 +60,7 @@ public interface SucursalService {
      * @param codigo Código único de la sucursal
      * @return SucursalDtoResponse sucursal encontrada
      */
-    SucursalDtoResponse getByCodigo(String codigo);
+    SucursalDto.Response getByCodigo(String codigo);
 
     /**
      * 📌 Busca una sucursal por su nombre
@@ -68,7 +68,7 @@ public interface SucursalService {
      * @param nombre Nombre de la sucursal
      * @return SucursalDtoResponse sucursal encontrada
      */
-    SucursalDtoResponse findByNombre(String nombre);
+    SucursalDto.Response findByNombre(String nombre);
 
 
     // =========================
@@ -94,7 +94,7 @@ public interface SucursalService {
      * @param response DTO con los nuevos datos
      * @return SucursalDtoResponse sucursal actualizada
      */
-    SucursalDtoResponse update(SucursalDtoResponse response);
+    SucursalDto.Response update(SucursalDto.Response response);
 
 
     // =========================

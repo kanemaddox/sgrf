@@ -1,6 +1,6 @@
 package com.saims.sgrf.model;
 
-import com.saims.sgrf.base.BaseEntity;
+import com.saims.sgrf.base.StatusEntity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -18,9 +18,10 @@ import lombok.Setter;
 
 @Entity // Indica que es una entidad JPA
 @Table(name = "persona_profesion") // Nombre de la tabla en la BD
-public class PersonaProfesionModel extends BaseEntity {
+public class PersonaProfesionModel extends StatusEntity {
 	/**
      * 👤 Relación con persona
+     * muchas personas -> a una profesion
      */
     @ManyToOne
     @JoinColumn(name = "id_persona", nullable = false)
@@ -28,6 +29,7 @@ public class PersonaProfesionModel extends BaseEntity {
     
     /**
      * 👤 Relación con Profesion
+     * muchas profesiones -> a una persona
      */
     @ManyToOne
     @JoinColumn(name = "id_profesion", nullable = false)

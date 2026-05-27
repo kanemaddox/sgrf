@@ -82,7 +82,7 @@ public class PersonaModel extends BaseEntity{
     /**
      * 📧 fecha de nacimiento
      */
-    @Column(name = "fecha_nacimineto",nullable = true)
+    @Column(name = "fecha_nacimiento",nullable = true)
     private String fechaNacimiento;
     
     /**
@@ -97,5 +97,7 @@ public class PersonaModel extends BaseEntity{
     @Column(name = "celular", nullable = true)
     private String celular;
     
-    
+    @Size(max = 100)
+    @Column(name = "foto",nullable = true, length = 100)
+    private String foto;
 }

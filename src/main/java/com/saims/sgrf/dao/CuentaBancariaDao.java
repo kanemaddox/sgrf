@@ -13,6 +13,9 @@ public interface CuentaBancariaDao extends JpaRepository<CuentaBancariaModel,Lon
 	@Query(value = "select * from cuentabancaria where id_persona=?",nativeQuery=true)
 	List<CuentaBancariaModel> getListaCuentaBancaria(Long id_persona);
 	
+	@Query(value = "select * from cuentabancaria where id_persona=? and estado = true",nativeQuery=true)
+	Optional<CuentaBancariaModel> getCuentaBancariaActivo(Long id_persona);
+	
 	@Query(value = "select * from cuentabancaria where id=?",nativeQuery=true)
 	CuentaBancariaModel getId(Long id);
 	

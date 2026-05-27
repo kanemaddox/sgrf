@@ -9,9 +9,8 @@ import org.springframework.stereotype.Service;
 
 import com.saims.sgrf.config.Personalizer;
 import com.saims.sgrf.dao.CentroCostosDao;
-import com.saims.sgrf.dto.CentroCostosDtoRequest;
-import com.saims.sgrf.dto.CentroCostosDtoResponse;
-import com.saims.sgrf.dto.DatosDtoRequest;
+import com.saims.sgrf.dto.CentroCostosDto;
+import com.saims.sgrf.dto.DatosDto;
 import com.saims.sgrf.model.CentroCostosModel;
 import com.saims.sgrf.service.CentroCostosService;
 
@@ -46,10 +45,10 @@ public class CentroCostosServiceImpl implements CentroCostosService {
      * @return CentroCostosModel existente o recién creado.
      */
     @Transactional
-    public CentroCostosModel createOrGet(DatosDtoRequest datosDtoRequest) {
+    public CentroCostosModel createOrGet(DatosDto.Request request) {
 
-        String codigoCentroCostos = this.personalizer.normalizer(datosDtoRequest.getCodigoCentroCostos());
-        String nombreCentroCostos = this.personalizer.normalizer(datosDtoRequest.getNombreCentroCostos());
+        String codigoCentroCostos = this.personalizer.normalizer(request.getCodigoCentroCostos());
+        String nombreCentroCostos = this.personalizer.normalizer(request.getNombreCentroCostos());
 
         return this.centroCostosDao.findByCodigo(codigoCentroCostos)
                 .orElseGet(() -> {
@@ -69,7 +68,7 @@ public class CentroCostosServiceImpl implements CentroCostosService {
      * @return DTO de respuesta.
      */
     @Transactional
-    public CentroCostosDtoResponse createCentroCostos(CentroCostosDtoRequest request) {
+    public CentroCostosDto.Response createCentroCostos(CentroCostosDto.Request request) {
 
         String codigo = this.personalizer.normalizer(request.getCodigo());
 
@@ -93,7 +92,7 @@ public class CentroCostosServiceImpl implements CentroCostosService {
      * Obtiene un Centro de Costos por su ID.
      */
     @Transactional
-    public CentroCostosDtoResponse getById(Long id) {
+    public CentroCostosDto.Response getById(Long id) {
         CentroCostosModel centroCosto = this.centroCostosDao.findById(id)
                 .orElseThrow(() -> new RuntimeException("Centro de costos no encontrado con ID: " + id));
 
@@ -104,7 +103,7 @@ public class CentroCostosServiceImpl implements CentroCostosService {
      * Lista todos los centros de costos.
      */
     @Transactional
-    public List<CentroCostosDtoResponse> getAll() {
+    public List<CentroCostosDto.Response> findAll() {
         return this.centroCostosDao.findAll()
                 .stream()
                 .map(centroCosto -> this.modelToResponse(centroCosto))
@@ -115,7 +114,7 @@ public class CentroCostosServiceImpl implements CentroCostosService {
      * Lista paginada de centros de costos.
      */
     @Transactional
-    public Page<CentroCostosDtoResponse> getAllPaginated(Pageable pageable) {
+    public Page<CentroCostosDto.Response> getAllPaginated(Pageable pageable) {
         return centroCostosDao.findAll(pageable)
                 .map(entity -> this.modelToResponse(entity));
     }
@@ -124,7 +123,7 @@ public class CentroCostosServiceImpl implements CentroCostosService {
      * Busca un centro de costos por su código.
      */
     @Transactional
-    public CentroCostosDtoResponse findByCodigo(String codigo) {
+    public CentroCostosDto.Response findByCodigo(String codigo) {
         CentroCostosModel centroCostos = centroCostosDao.findByCodigo(this.personalizer.normalizer(codigo))
                 .orElseThrow(() -> new RuntimeException("No existe centro de costos con código: " + codigo));
 
@@ -136,7 +135,7 @@ public class CentroCostosServiceImpl implements CentroCostosService {
      */
 
     @Transactional
-    public CentroCostosDtoResponse updateNombre(CentroCostosDtoResponse response) {
+    public CentroCostosDto.Response updateNombre(CentroCostosDto.Response response) {
         CentroCostosModel centroCostos = this.centroCostosDao.findById(response.getId())
                 .orElseThrow(() -> new RuntimeException("Centro de costos no encontrado"));
 
@@ -147,7 +146,7 @@ public class CentroCostosServiceImpl implements CentroCostosService {
     }
     
     @Transactional
-    public CentroCostosDtoResponse updateFull(CentroCostosDtoResponse response) {
+    public CentroCostosDto.Response updateFull(CentroCostosDto.Response response) {
 
         CentroCostosModel centroCostos = this.centroCostosDao.findById(response.getId())
                 .orElseThrow(() -> new RuntimeException("Centro de Costos no encontrada"));
@@ -188,9 +187,8 @@ public class CentroCostosServiceImpl implements CentroCostosService {
     /**
      * 📌 Convierte Entity → DTO
      */
-    private CentroCostosDtoResponse modelToResponse(CentroCostosModel centroCostosModel) {
-    	
-        return this.modelMapper.map(centroCostosModel, CentroCostosDtoResponse.class);
+    private CentroCostosDto.Response modelToResponse(CentroCostosModel centroCostosModel) {
+        return this.modelMapper.map(centroCostosModel, CentroCostosDto.Response.class);
     }
     
     public boolean existsByNombre(String nombre) {

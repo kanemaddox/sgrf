@@ -3,7 +3,6 @@ package com.saims.sgrf.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
-//import org.hibernate.internal.util.collections.AbstractPagedArray.Page;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,9 +10,8 @@ import org.springframework.stereotype.Service;
 
 import com.saims.sgrf.config.Personalizer;
 import com.saims.sgrf.dao.AreaDao;
-import com.saims.sgrf.dto.AreaDtoRequest;
-import com.saims.sgrf.dto.AreaDtoResponse;
-import com.saims.sgrf.dto.DatosDtoRequest;
+import com.saims.sgrf.dto.AreaDto;
+import com.saims.sgrf.dto.DatosDto;
 import com.saims.sgrf.enums.Estado;
 import com.saims.sgrf.model.AreaModel;
 import com.saims.sgrf.service.AreaService;
@@ -37,7 +35,7 @@ public class AreaServiceImpl implements AreaService {
      * 📌 Crea un área evitando duplicados
      */
     @Transactional
-    public AreaDtoResponse createArea(AreaDtoRequest request) {
+    public AreaDto.Response createArea(AreaDto.Request request) {
 
         String nombre = this.personalizer.normalizer(request.getNombre());
 
@@ -58,7 +56,7 @@ public class AreaServiceImpl implements AreaService {
      * 📌 Uso interno o cargas masivas
      */
     @Transactional
-    public AreaModel createOrGet(DatosDtoRequest request) {
+    public AreaModel createOrGet(DatosDto.Request request) {
 
         String nombre = this.personalizer.normalizer(request.getNombreArea());
 
@@ -79,7 +77,7 @@ public class AreaServiceImpl implements AreaService {
      * 📌 Obtiene un área por ID
      */
     @Transactional
-    public AreaDtoResponse getById(Long id) {
+    public AreaDto.Response getById(Long id) {
 
         AreaModel area = this.areaDao.findById(id)
                 .orElseThrow(() -> new RuntimeException("Área no encontrada con ID: " + id));
@@ -91,9 +89,8 @@ public class AreaServiceImpl implements AreaService {
      * 📌 Lista todas las áreas
      */
     @Transactional
-    public List<AreaDtoResponse> findByAll(Estado estado) {
-    	
-    	List<AreaDtoResponse>areas = null;
+    public List<AreaDto.Response> findByAll(Estado estado) {
+    	List<AreaDto.Response>areas = null;
     	switch(estado) {
     		case ACTIVO:
     			areas = this.areaDao.findByEstado(true).stream()
@@ -111,7 +108,6 @@ public class AreaServiceImpl implements AreaService {
                 .collect(Collectors.toList());
     			break;
     	}
-
         return areas;
     }
 
@@ -119,7 +115,7 @@ public class AreaServiceImpl implements AreaService {
      * 📌 Búsqueda por nombre
      */
     @Transactional
-    public AreaDtoResponse findByNombre(String nombre) {
+    public AreaDto.Response findByNombre(String nombre) {
 
         AreaModel area = this.areaDao.findByNombre(this.personalizer.normalizer(nombre))
                 .orElseThrow(() -> new RuntimeException("Área no encontrada"));
@@ -131,7 +127,7 @@ public class AreaServiceImpl implements AreaService {
      * 📌 Paginación (frontend)
      */
     @Transactional
-    public Page<AreaDtoResponse> getAllPaginated(Pageable pageable) {
+    public Page<AreaDto.Response> getAllPaginated(Pageable pageable) {
         return this.areaDao.findAll(pageable)
                 .map(area -> this.modelToResponse(area));
     }
@@ -144,7 +140,7 @@ public class AreaServiceImpl implements AreaService {
      * 📌 Actualización parcial (RECOMENDADO)
      */
     @Transactional
-    public AreaDtoResponse updateNombre(AreaDtoResponse response) {
+    public AreaDto.Response updateNombre(AreaDto.Response response) {
 
         AreaModel area = this.areaDao.findById(response.getId())
                 .orElseThrow(() -> new RuntimeException("Área no encontrada"));
@@ -166,7 +162,7 @@ public class AreaServiceImpl implements AreaService {
      * 📌 Actualización completa (usar con cuidado)
      */
     @Transactional
-    public AreaDtoResponse update(AreaDtoResponse response) {
+    public AreaDto.Response update(AreaDto.Response response) {
 
         AreaModel area = this.areaDao.findById(response.getId())
                 .orElseThrow(() -> new RuntimeException("Área no encontrada"));
@@ -213,8 +209,8 @@ public class AreaServiceImpl implements AreaService {
         return this.areaDao.findByNombre(nombre).isPresent();
     }
     
-    private AreaDtoResponse modelToResponse(AreaModel area) {
-    	return (this.modelMapper.map(area, AreaDtoResponse.class));
+    private AreaDto.Response modelToResponse(AreaModel area) {
+    	return (this.modelMapper.map(area, AreaDto.Response.class));
     }
     
 }
