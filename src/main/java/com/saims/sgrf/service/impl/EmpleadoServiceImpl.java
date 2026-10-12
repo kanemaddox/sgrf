@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.saims.sgrf.config.Personalizer;
 import com.saims.sgrf.dao.EmpleadoDao;
 import com.saims.sgrf.dao.PersonaDao;
 import com.saims.sgrf.dto.DatosDto;
@@ -26,6 +27,7 @@ public class EmpleadoServiceImpl implements EmpleadoService {
 	private final EmpleadoDao empleadoDao;
 	private final ModelMapper modelMapper;
 	private final PersonaDao personaDao;
+	private Personalizer personaizer = new Personalizer();
 
 	/**
 	 * Método principal para registrar o recuperar un empleado.
@@ -43,14 +45,22 @@ public class EmpleadoServiceImpl implements EmpleadoService {
 	 */
 	@Transactional
 	public EmpleadoModel addDatos(PersonaModel personaModel, DatosDto.Request request) {
+		EmpleadoModel empleado = this.empleadoDao.findByPersona_Id(personaModel.getId()).map(e -> {
+			e.setTipo(request.getTipo() ? TipoEmpleado.JEFE : TipoEmpleado.SUBORDINADO);
+			e.setEstado(true);
+			this.empleadoDao.save(e);
+			return e;
 
-		return this.empleadoDao.findByPersona_Id(personaModel.getId()).map(empleado -> {
-			empleado.setTipo(TipoEmpleado.SUBORDINADO);
-			empleado.setEstado(true);
-			if (request.getTipo())
-				empleado.setTipo(TipoEmpleado.JEFE);
-			return this.empleadoDao.save(empleado);
-		}).orElseGet(() -> crearEmpleado(personaModel, request));
+		}).orElseGet(() -> {
+			EmpleadoModel nuevo = new EmpleadoModel();
+			nuevo.setPersona(personaModel);
+			nuevo.setTipo(request.getTipo() ? TipoEmpleado.JEFE : TipoEmpleado.SUBORDINADO);
+			nuevo.setEmail(this.personaizer.normalizerLower(request.getEmailEmpleado()));
+			nuevo.setEstado(true);
+			return empleadoDao.save(nuevo);
+		});
+
+		return empleado;
 	}
 
 	@Transactional
@@ -142,7 +152,7 @@ public class EmpleadoServiceImpl implements EmpleadoService {
 
 		return this.modelToResponse(empleado);
 	}
-	
+
 	public EmpleadoModel findByPersonaIdModel(Long personaId) {
 		EmpleadoModel empleado = empleadoDao.findByPersona_Id(personaId).orElseGet(() -> {
 			EmpleadoModel nuevo = new EmpleadoModel();
@@ -152,7 +162,7 @@ public class EmpleadoServiceImpl implements EmpleadoService {
 
 		return empleado;
 	}
-	
+
 	@Transactional
 	public List<EmpleadoModel> findByEstado(boolean estado) {
 		List<EmpleadoModel> empleados = this.empleadoDao.findByEstado(estado);
@@ -200,6 +210,5 @@ public class EmpleadoServiceImpl implements EmpleadoService {
 	private EmpleadoDto.Response modelToResponse(EmpleadoModel empleado) {
 		return this.modelMapper.map(empleado, EmpleadoDto.Response.class);
 	}
-	
-	
+
 }

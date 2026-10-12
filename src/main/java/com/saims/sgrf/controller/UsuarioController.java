@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/sgrf/user/usuario")
+//@RequestMapping("/user/usuario")
 @RequiredArgsConstructor
 public class UsuarioController {
 	private final UsuarioService usuarioService;
@@ -96,6 +97,4 @@ public class UsuarioController {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-
 }

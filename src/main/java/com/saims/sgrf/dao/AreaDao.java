@@ -9,11 +9,11 @@ import com.saims.sgrf.model.AreaModel;
 
 public interface AreaDao extends JpaRepository<AreaModel, Long>{
 	// nativo
-	@Query(value = "select * from area where nombre=?",nativeQuery=true)
-	AreaModel getArea(String nombre);
+	//@Query(value = "select * from area where nombre=?",nativeQuery=true)
+	//AreaModel getArea(String nombre);
 	
 	// Jpa automatizado
-	Optional<AreaModel>findByNombre(String nombre);
+	Optional<AreaModel>findByCodigo(String codigo);
 	
 	Optional<AreaModel>findByEstado(boolean estado);
 	

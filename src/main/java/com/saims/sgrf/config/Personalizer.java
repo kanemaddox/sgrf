@@ -31,12 +31,12 @@ public class Personalizer {
 	}
 	
 	/**
-     * 📌 Genera el prefijo de la sucursal
-     * ✔ Toma los primeros 2 caracteres del código
+     * 📌 prefijos de codigo
      */
-    public String generatePrefijo(String codigo) {
-        return (codigo != null && codigo.length() >= 2) 
-                ? codigo.substring(0, 2) 
+    public String generatePrefijo(String codigo,int n) {
+    	codigo = normalizer(codigo);
+        return (codigo != null && codigo.length() >= n) 
+                ? codigo.substring(0, n) 
                 : codigo;
     }
     public String normalizerIdp(String value) {

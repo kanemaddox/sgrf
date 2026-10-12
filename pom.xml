@@ -29,6 +29,10 @@
 	<properties>
 		<java.version>21</java.version>
 	</properties>
+	
+	<!-- Descomentar para generar WAR
+	<packaging>war</packaging>-->
+	
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -84,8 +88,6 @@
 		    <artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 		
-		
-		
 		<dependency>
 	    	<groupId>io.jsonwebtoken</groupId>
 	    	<artifactId>jjwt-api</artifactId>
@@ -111,6 +113,46 @@
 		    <artifactId>thumbnailator</artifactId>
 		    <version>0.4.20</version>
 		</dependency>
+		
+		<dependency>
+		    <groupId>org.apache.pdfbox</groupId>
+		    <artifactId>pdfbox</artifactId>
+		    <version>3.0.1</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.apache.pdfbox</groupId>
+		    <artifactId>pdfbox-io</artifactId>
+		    <version>3.0.1</version>
+		</dependency>
+		
+		<dependency>
+    		<groupId>org.mariadb.jdbc</groupId>
+    		<artifactId>mariadb-java-client</artifactId>
+		</dependency>
+		
+		<!--Para el envio de correo-->
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+		<!--{Para las plantillas del correo-->
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+		
+		<!-- Deswcomentar para generar WAR 
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-tomcat</artifactId>
+		    <scope>provided</scope>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.hibernate.validator</groupId>
+		    <artifactId>hibernate-validator</artifactId>
+		    <version>8.0.1.Final</version>
+		</dependency>  -->
 		
 	</dependencies>
 

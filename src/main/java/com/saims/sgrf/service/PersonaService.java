@@ -88,4 +88,6 @@ public interface PersonaService {
     boolean existsByIdp(String idp);
     
     PersonaModel findByEmail(String email);
+    
+    PersonaModel findByIdpModel(String idp);
 }

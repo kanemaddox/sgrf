@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/sgrf/user/usuario/datos")
+//@RequestMapping("/user/usuario/datos")
 @RequiredArgsConstructor
 public class DatosController {
 	private final DatosService datosService;
@@ -69,6 +70,15 @@ public class DatosController {
 	public ResponseEntity<DatosDto.Empleado>getDatosEmpleados(){
 		try {
 			return new ResponseEntity<>(this.datosService.getDatosEmpleados() ,HttpStatus.OK);
+		}catch(Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@GetMapping("/getPerfil")
+	public ResponseEntity<DatosDto.Perfil>getPerfil(@RequestParam (value="idPersona") Long idPersona){
+		try {
+			return new ResponseEntity<>(this.datosService.getPerfil(idPersona) ,HttpStatus.OK);
 		}catch(Exception e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}

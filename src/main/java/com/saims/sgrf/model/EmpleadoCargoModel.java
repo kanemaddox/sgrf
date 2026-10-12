@@ -20,6 +20,9 @@ import lombok.Setter;
 @Entity 
 @Table(name = "empleado_cargo")
 public class EmpleadoCargoModel extends StatusEntity{
+	
+	@Column(name="idpPago")
+    private String idpPago;
 		
 	/**
      * 👤 Relación con Empleado

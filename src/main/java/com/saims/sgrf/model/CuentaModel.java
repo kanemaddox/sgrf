@@ -7,8 +7,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -22,29 +20,24 @@ import lombok.Setter;
 @NoArgsConstructor
 
 @Entity
-@Table(name = "aprobacion")
-public class AprobacionModel extends BaseEntity{
+@Table(name = "cuenta")
+public class CuentaModel extends BaseEntity{
+
+	@Column(name = "tipo")
+	private String tipo;
 	
-	@Column(name="tipo")
-    private String tipo;
+	@Column(name = "cuenta")
+	private String cuenta;
 	
-	@Column(name="destino")
-    private int destino;
+	@Column(name = "nombre")
+	private String nombre;
 	
-	@Column(name="obs")
-    private String obs;
-	
-	@ManyToOne
-    @JoinColumn(name = "id_srf")
-    private SrfModel srf;
+	@Column(name = "glosa")
+	private String glosa;
 	
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	@NotNull
-	private Estado estado;
+	private Estado categoria;
 	
-	@ManyToOne
-	@JoinColumn(name = "id_persona")
-	private PersonaModel persona;
-
 }

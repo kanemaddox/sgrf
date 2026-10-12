@@ -36,9 +36,8 @@ public class DataInitializer {
         		value.put("titulo", "Titulo");
         		value.put("seccionUno", "Titulo Seccion I");
         		value.put("seccionDos", "Titulo Seccion II");
-        		value.put("seccionTres", "Titulo Seccion II");
+        		value.put("seccionTres", "Titulo Seccion III");
         		value.put("detalle", "Detalle Seccion III");
-        		value.put("estadoTres", false);
         		
         		
         		Map<String, Object> pernicions = new HashMap<>();
@@ -46,7 +45,22 @@ public class DataInitializer {
         		pernicions.put("menuSettings",true);
         		pernicions.put("mi_cuenta",true);
         		pernicions.put("perfil",true);
-        		pernicions.put("cuenta_bancaria",true);       		
+        		pernicions.put("cuenta_bancaria",true);
+        		pernicions.put("areas",true);
+        		pernicions.put("jefes",true);
+        		pernicions.put("admins",true);
+        		pernicions.put("system",true);
+        		pernicions.put("usuarios",true);
+        		pernicions.put("menuAdmin",true);
+        		pernicions.put("sucursales",true);
+        		pernicions.put("formularios",true);
+        		pernicions.put("menuSettings",true);
+        		pernicions.put("crear_solicitud",true);
+        		pernicions.put("crear_reposision",true);
+        		pernicions.put("listar_solicitud",true);
+        		pernicions.put("aprobar_solicitud",true);
+        		pernicions.put("formualrio_solicitud",true);
+        		pernicions.put("formulario_repocicion",true);
             	
             	PersonaModel persona = new PersonaModel();
             	persona.setNombre("Admin");
@@ -74,6 +88,13 @@ public class DataInitializer {
         		setting = new SettingsModel();
         		setting.setCategoria("Formulario");
         		setting.setNombre("Key_FSR");        		
+        		setting.setValue(value);
+        		
+        		this.settingsDao.save(setting);
+        		
+        		setting = new SettingsModel();
+        		setting.setCategoria("Formulario");
+        		setting.setNombre("Key_RDG");        		
         		setting.setValue(value);
         		
         		this.settingsDao.save(setting);

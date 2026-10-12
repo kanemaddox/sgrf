@@ -23,11 +23,14 @@ public class LoginDto {
 		private String imagen;
 		private PersonaDto.Response persona;
 		private Map<String, Object> pernicions;
+		private String idpName;
 		private Rol rol;
 		private int intentos;
 		private boolean pass; 
 		private String token;
 		private String refresh;
+		private Long expiresIn;
+		private Long expiresAt;
 	}
 	
 }

@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/sgrf/user/personaprofesion")
+//@RequestMapping("/user/personaprofesion")
 @RequiredArgsConstructor
 public class PersonaProfesionController {
 	private final PersonaProfesionService personaProfesionService;

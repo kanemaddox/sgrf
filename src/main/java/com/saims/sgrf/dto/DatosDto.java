@@ -20,6 +20,7 @@ public class DatosDto {
 		private String paterno;
 		private String materno;
 		private String email;
+		private String foto;
 		
 		/**
 		 * Datos Para profesion  
@@ -30,42 +31,33 @@ public class DatosDto {
 		 * Datos para cargo
 		 */
 		private String cargoNombre;
+		private String emailEmpleado;
 		
 		/**
-		 * Datos para Cuenta Bancaria
-		 */
-		private String numero;
-		private String tipoCuenta;
-		
-		/**
-		 * Datos para el Banco
+		 * Datos para el Banco y para Cuenta Bancaria
 		 */
 		private String bancoNombre;
-		
-		
-		
-		/**
-		 * Datos para Sucursal
-		 */
-		private String codigoSucursal;
-		private String nombreSucursal;
+		private String numero;
+		private String tipoCuenta;
 		
 		/**
 		 * Datos para Centro de Costos
 		 */
 		private String codigoCentroCostos;
 		private String nombreCentroCostos;
-		
-		/**
-		 * Datos para Area
-		 */
-		private String nombreArea;
+		private String codigoSubCentroCostos;
+		private String nombreSubCentroCostos;
 		
 		/**
 		 * Datos para el Jefe
 		 */
 		private String idpJefe;
-		private Boolean tipo;	
+		private Boolean tipo;
+		
+		/**
+		 * Datos para Contavilidad
+		 */
+		private String idpPago;
 	}
 	
 	@Data
@@ -96,7 +88,9 @@ public class DatosDto {
 		 */
 		private Long idCargo;
 		private String cargoNombre;
+		private String emailEmpleado;
 		private boolean estadoCargo;
+		private Enum tipoEmpleado;
 		
 		/**
 		 * Datos para Cuenta Bancaria
@@ -117,34 +111,17 @@ public class DatosDto {
 		
 		
 		/**
-		 * Datos para Sucursal
-		 */
-		private Long idSucursal;
-		private String codigoSucursal;
-		private String nombreSucursal;
-		private String prefijoSucursal;
-		
-		/**
-		 * Datos para Centro de Costos
-		 */
-		private Long idCentroCostos;
-		private String codigoCentroCostos;
-		private String nombreCentroCostos;
-		private String prefijoCentroCostos;
-		private boolean estadoCentroCostos;
-		
-		/**
-		 * Datos para Area
+		 * Datos Area de Trabajo
 		 */
 		private Long idArea;
+		private String codigoArea;
 		private String nombreArea;
-		private boolean estadoArea;
+		private String prefijoArea;
 		
 		/**
 		 * Datos para el Jefe
 		 */
 		private Long idJefe;
-		private Enum tipoEmpleado;
 		private String idpJefe;
 		private String nombreJefe;
 	}
@@ -160,4 +137,33 @@ public class DatosDto {
 		private List<PersonaDto.Response> jefe;
 	}
 	
+	@Data
+	public static class Perfil{
+		
+		private Long idPersona;
+		
+		private String idp;
+		private String nombre;
+		private String email;
+		private String celular;
+		
+		/**
+		 * datos para archivo 
+		 * */
+		
+		private String profesion;
+		private String cargo;
+		private String corporativo;
+		
+		private String centroCostos;
+		private String subCentroCostos;
+		private String codigoSubCentro;
+		
+		/**
+		 * datos del Jefe*/
+		
+		private String idpJefe;
+		private String jefe;
+		
+	}
 }

@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/sgrf/user/cargo")
+//@RequestMapping("/user/cargo")
 @RequiredArgsConstructor
 public class CargoController {
 	

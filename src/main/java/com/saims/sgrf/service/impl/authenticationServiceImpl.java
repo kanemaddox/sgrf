@@ -1,5 +1,6 @@
 package com.saims.sgrf.service.impl;
 
+import java.util.Date;
 import java.util.HashMap;
 
 import org.springframework.stereotype.Service;
@@ -8,9 +9,11 @@ import com.saims.sgrf.config.Personalizer;
 import com.saims.sgrf.dao.UsuarioDao;
 import com.saims.sgrf.dto.LoginDto;
 import com.saims.sgrf.dto.PersonaDto;
+import com.saims.sgrf.dto.SettingsDto;
 import com.saims.sgrf.dto.UserDto;
 import com.saims.sgrf.enums.Rol;
 import com.saims.sgrf.model.UsuarioModel;
+import com.saims.sgrf.service.SettingsService;
 import com.saims.sgrf.service.authenticationService;
 import com.saims.sgrf.service.jwtService;
 
@@ -23,6 +26,7 @@ public class authenticationServiceImpl implements authenticationService{
 	private final UsuarioDao usuarioDao;
 	private final jwtService jwtService;
 	private Personalizer personalizer = new Personalizer();
+	private final SettingsService settingsService;
 
 	
 	public LoginDto.Response login(LoginDto.Request request){
@@ -47,6 +51,8 @@ public class authenticationServiceImpl implements authenticationService{
 		
 		
 		if(usuario.getEstado()) {
+			SettingsDto.Response settings = this.settingsService.getValue(1L);
+			String idpLabel = (String) settings.getValue().get("idp");
 			usuario.setIntentos(0);
 			this.usuarioDao.save(usuario);
 			
@@ -59,6 +65,7 @@ public class authenticationServiceImpl implements authenticationService{
 			response.setPass((usuario.getUsuario().equals(request.getPass()))?true:false);
 			response.setPernicions(usuario.getPernicions());
 			response.setRol(usuario.getRol());
+			response.setIdpName(idpLabel);
 		
 			
 			PersonaDto.Response persona = new PersonaDto.Response();
@@ -71,6 +78,7 @@ public class authenticationServiceImpl implements authenticationService{
 			persona.setEmail(usuario.getPersona().getEmail());
 			persona.setFechaNacimiento(usuario.getPersona().getFechaNacimiento());
 			persona.setSexo(usuario.getPersona().getSexo());
+			
 			response.setPersona(persona);
 			
 			UserDto user = new UserDto();
@@ -81,8 +89,16 @@ public class authenticationServiceImpl implements authenticationService{
 			
 			var jwt = jwtService.generateToken(user);
 			var refresh = jwtService.generateRefreshToken(new HashMap<>(),user);
+			
+			Date expiration = jwtService.extractExpiration(jwt);
+
+			long expiresAt = expiration.getTime();
+			long expiresIn = expiresAt - System.currentTimeMillis();
+
 			response.setToken(jwt);
 			response.setRefresh(refresh);
+			response.setExpiresAt(expiresAt);
+			response.setExpiresIn(expiresIn);
 		}
 		else {
 			
@@ -101,7 +117,6 @@ public class authenticationServiceImpl implements authenticationService{
 				response.setIntentos(usuario.getIntentos());
 			}
 			else {
-				System.out.println("Usuario no ================");
 				response.setNombre("El Usuario NO Existe");
 			}
 				

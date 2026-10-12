@@ -89,4 +89,9 @@ public interface AreaService {
      * @return true si existe, false si no
      */
     boolean existsByNombre(String nombre);
+    
+    List<AreaDto.Estructura> getEstructura();
+    
+    AreaDto.Response createDatos(AreaDto.Request request);
+    
 }

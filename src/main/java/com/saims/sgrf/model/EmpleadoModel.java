@@ -40,6 +40,9 @@ public class EmpleadoModel extends StatusEntity{
     @JoinColumn(name = "id_persona", nullable = false)
     private PersonaModel persona;
     
+    @Column(name="email")
+    private String email;
+    
     // 🧠 Tipo de empleado (mejor que int )
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

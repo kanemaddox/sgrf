@@ -9,9 +9,13 @@ import com.saims.sgrf.model.SrfModel;
 public interface SrfService {
 	
 	SrfDto.Response createSrf(SrfDto.Request request);
-	List<SrfDto.Response> getSrfUsuarioEstado(Long idUsuario, Estado estado);
-	SrfDto.Response getSrf(Long idSrf);
+	List<SrfDto.Stado> getSrfUsuarioEstado(Long idPersona, Estado estado);
+	SrfDto.Detalle getSrf(Long idSrf);
 	SrfDto.Response updateSrf(SrfDto.Response response);
 	boolean updateEstado(SrfModel request);
+	SrfDto.Detalle getSrfUsuario(String idSrf,Long idPersona);
+	SrfModel findById(Long idSrf);
+	List<Integer> getSrfEstado(Long idPersona);
+	SrfDto.Publico getSrfPublico(String token);
 
 }

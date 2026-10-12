@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/sgrf/user/cuentabancaria")
+//@RequestMapping("/user/cuentabancaria")
 @RequiredArgsConstructor
 public class CuentaBancariaController {
 	

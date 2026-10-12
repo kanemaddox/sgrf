@@ -13,5 +13,7 @@ public interface DatosService {
 	DatosDto.Response getDatosUsuario(Long idUsuario);
 	
 	DatosDto.Empleado getDatosEmpleados();
+	
+	DatosDto.Perfil getPerfil(Long idPersona);
 
 }

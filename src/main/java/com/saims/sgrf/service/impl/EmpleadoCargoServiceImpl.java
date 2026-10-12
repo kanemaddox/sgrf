@@ -40,7 +40,7 @@ public class EmpleadoCargoServiceImpl implements EmpleadoCargoService{
 		PersonaModel jefe = this.personaDao.findByIdp(this.personalizer.normalizerIdp(request.getIdpJefe()))
 				.orElseGet(()->{
 					return this.personaDao.getId(1L);
-				});
+				});	
 		
 		List<EmpleadoCargoModel> lista = this.empleadoCargoDao.getCargos(empleado.getId());
 		
@@ -53,6 +53,7 @@ public class EmpleadoCargoServiceImpl implements EmpleadoCargoService{
 			nuevo.setEmpleado(empleado);
 			nuevo.setCargo(cargo);
 			nuevo.setJefe(jefe);
+			nuevo.setIdpPago(request.getIdpPago());
 			nuevo.setEstado(true);
 			this.empleadoCargoDao.save(nuevo);
 		}		

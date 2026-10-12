@@ -53,6 +53,15 @@ public class SettingsServiceImpl implements SettingsService {
 		});
 		return this.ModelToResponse(model);
 	}
+	@Transactional
+	public SettingsModel getValueModel(Long id) {
+		SettingsModel model = this.settingsDao.findById(id).orElseGet(() -> {
+			SettingsModel nuevo = new SettingsModel();
+			nuevo.setNombre("Error");
+			return nuevo;
+		});
+		return model;
+	}
 
 	private SettingsDto.Response ModelToResponse(SettingsModel settings) {
 		return this.modelMapper.map(settings, SettingsDto.Response.class);

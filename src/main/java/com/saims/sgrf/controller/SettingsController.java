@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/sgrf/user/setting")
+//@RequestMapping("/user/setting")
 @RequiredArgsConstructor
 public class SettingsController {
 	private final SettingsService settingsService; 

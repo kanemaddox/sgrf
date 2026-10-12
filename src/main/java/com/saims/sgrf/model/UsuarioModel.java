@@ -56,7 +56,7 @@ public class UsuarioModel extends StatusEntity{
     private Rol rol ;
     
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name="pernicions",columnDefinition = "json")
+    @Column(name="pernicions")
     private Map<String, Object> pernicions;
     
     /**

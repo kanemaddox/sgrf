@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import com.saims.sgrf.config.Personalizer;
@@ -33,8 +34,20 @@ public class PersonaServiceImpl implements PersonaService {
     public PersonaModel createOrGet(DatosDto.Request request) {
 
     	String idp = this.personalizer.normalizerIdp(request.getIdp());
-        
         PersonaModel personaModel = personaDao.findByIdp(idp)
+        		.map(p ->{
+        			String auxmail = p.getEmail();
+        			String nuevo = this.personalizer.normalizerLower(request.getEmail()); 
+        			if(!auxmail.equals(nuevo)) {
+        				try {
+            				p.setEmail(nuevo);
+            				this.personaDao.save(p);
+            			}catch(Exception e) {
+            				p.setEmail(auxmail);
+            			}	
+        			}
+        			return p;
+        		})
                 .orElseGet(() -> {
                     PersonaModel nuevo = new PersonaModel();
                     nuevo.setIdp(idp);
@@ -45,20 +58,6 @@ public class PersonaServiceImpl implements PersonaService {
                     nuevo.setFoto("usuario.png");
                     return personaDao.save(nuevo);
                 });
-
-        // Actualización de datos si cambian
-        boolean updated = false;
-
-        String email = this.personalizer.normalizerLower(request.getEmail());
-
-        if (email != null && !email.equals(personaModel.getEmail())) {
-            personaModel.setEmail(email);
-            updated = true;
-        }
-
-        if (updated) {
-            this.personaDao.save(personaModel);
-        }
 
         return personaModel;
     }
@@ -101,6 +100,17 @@ public class PersonaServiceImpl implements PersonaService {
                 .orElseThrow(() -> new RuntimeException("Persona no encontrada"));
 
         return this.modelToResponse(persona);
+    }
+    
+    @Transactional
+    public PersonaModel findByIdpModel(String idp) {
+        PersonaModel persona = personaDao.findByIdp(this.personalizer.normalizer(idp))
+        		.orElseGet(()->{
+        			PersonaModel nuevo = new PersonaModel();
+        			nuevo.setId(0L);
+        			return nuevo;
+        		});
+        return persona;
     }
 
     /**

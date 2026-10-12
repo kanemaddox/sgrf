@@ -31,9 +31,11 @@ public class SecurityConfiguration {
 	@Bean
 	SecurityFilterChain securityFilterChain (HttpSecurity http) throws Exception{
 		http.csrf(AbstractHttpConfigurer::disable)
-		.authorizeHttpRequests(request ->request.requestMatchers("/sgrf/login/**")
+		.authorizeHttpRequests(request ->request.requestMatchers("/sgrf/publico/login/**")
 				.permitAll()
-				.requestMatchers("/sgrf/imagenes/**").permitAll()
+				//.requestMatchers("/sgrf/publico/imagenes/**").permitAll()
+				//.requestMatchers("/sgrf/publico/document/**").permitAll()
+				.requestMatchers("/sgrf/publico/**").permitAll()
 				.requestMatchers("/sgrf/admin/**").hasAnyAuthority(Rol.ADMIN.name())
 				.requestMatchers("/sgrf/user/**").hasAnyAuthority(Rol.USER.name())
 				.anyRequest().authenticated())

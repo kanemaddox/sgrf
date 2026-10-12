@@ -33,4 +33,5 @@ public interface UsuarioService{
 	void updateUsuarioPernicions(UsuarioDto.Response response);
 	
 	List<UsuarioDto.Response> findByRol(Rol rol);
+	
 }

@@ -9,5 +9,10 @@ public enum Estado {
     PENDIENTE,
     ESPERA,
     DEVUELTO,
-    TRAMITE
+    TRAMITE,
+    SI,
+    NO,
+    GASTO,
+    PORPAGAR,
+    PORCOBRAR
 }

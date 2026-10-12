@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/sgrf/user/area")
+//@RequestMapping("/user/area")
 @RequiredArgsConstructor
 public class AreaController {
 	
@@ -34,10 +35,28 @@ public class AreaController {
 		}
 	}
 	
+	@PostMapping("/createDatos")
+	public ResponseEntity<AreaDto.Response> createDatos(@RequestBody AreaDto.Request request){
+		try {
+			return new ResponseEntity<>(this.areaService.createDatos(request) ,HttpStatus.CREATED);
+		}catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
 	@GetMapping("/findByAll")
 	public ResponseEntity<List<AreaDto.Response>> findByAll(@RequestParam (value="estado") Estado estado){
 		try {
 			return new ResponseEntity<>(this.areaService.findByAll(estado),HttpStatus.OK);
+		}catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@GetMapping("/getEstructura")
+	public ResponseEntity<List<AreaDto.Estructura>> getEstructura(){
+		try {
+			return new ResponseEntity<>(this.areaService.getEstructura(),HttpStatus.OK);
 		}catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}

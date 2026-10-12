@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/sgrf/user/upload")
+//@RequestMapping("/user/upload")
 @RequiredArgsConstructor
 public class FileController {
 	private final FileService fileService;
@@ -22,6 +23,15 @@ public class FileController {
 	public ResponseEntity<String> createProfile(@RequestParam(value = "file") MultipartFile file){
 		try {
 			return new ResponseEntity<>(this.fileService.createProfile(file) ,HttpStatus.OK);
+		}catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@PostMapping("/createDocument")
+	public ResponseEntity<String> createDocument(@RequestParam(value = "file") MultipartFile file){
+		try {
+			return new ResponseEntity<>(this.fileService.createDocument(file) ,HttpStatus.OK);
 		}catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}

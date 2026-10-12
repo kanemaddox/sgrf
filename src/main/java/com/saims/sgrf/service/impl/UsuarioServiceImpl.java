@@ -1,5 +1,6 @@
 package com.saims.sgrf.service.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.saims.sgrf.config.Personalizer;
 import com.saims.sgrf.dao.UsuarioDao;
+import com.saims.sgrf.dto.SrfDto;
 import com.saims.sgrf.dto.UserDto;
 import com.saims.sgrf.dto.UsuarioDto;
 import com.saims.sgrf.enums.Estado;
@@ -19,6 +21,7 @@ import com.saims.sgrf.enums.Rol;
 import com.saims.sgrf.model.PersonaModel;
 import com.saims.sgrf.model.UsuarioModel;
 import com.saims.sgrf.service.PersonaService;
+import com.saims.sgrf.service.SrfService;
 import com.saims.sgrf.service.UsuarioService;
 
 import jakarta.transaction.Transactional;
@@ -64,7 +67,11 @@ public class UsuarioServiceImpl implements UsuarioService {
 		pernicions.put("mi_cuenta",true);
 		pernicions.put("perfil",true);
 		pernicions.put("cuenta_bancaria",true);
-				
+		pernicions.put("formularios",true);
+		pernicions.put("crear_solicitud",true);
+		pernicions.put("crear_repocicion",true);
+		pernicions.put("listar_solicitud",true);
+		
 		String pass = this.personalizer.password(persona.getIdp());
 		
 		UsuarioModel usuario = this.usuarioDao.findByUsuario(persona.getIdp())

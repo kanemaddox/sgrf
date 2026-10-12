@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/sgrf/user/srf")
+//@RequestMapping("/user/srf")
 @RequiredArgsConstructor
 public class SrfController {
 	
@@ -34,18 +35,27 @@ public class SrfController {
 		}
 	}
 	@GetMapping("/getSrfUsuarioEstado")
-	public ResponseEntity<List<SrfDto.Response>> getSrfUsuarioEstado(@RequestParam (value="idUsuario") Long idUsuario, @RequestParam (value="estado") Estado estado){
+	public ResponseEntity<List<SrfDto.Stado>> getSrfUsuarioEstado(@RequestParam (value="idPersona") Long idPersona, @RequestParam (value="estado") Estado estado){
 		try {
-			return new ResponseEntity<>(this.srfService.getSrfUsuarioEstado(idUsuario, estado),HttpStatus.OK);
+			return new ResponseEntity<>(this.srfService.getSrfUsuarioEstado(idPersona, estado),HttpStatus.OK);
 		}catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 	
 	@GetMapping("/getSrf")
-	public ResponseEntity<SrfDto.Response> getSrf(@RequestParam (value="idSrf") Long idSrf){
+	public ResponseEntity<SrfDto.Detalle> getSrf(@RequestParam (value="idSrf") Long idSrf){
 		try {
 			return new ResponseEntity<>(this.srfService.getSrf(idSrf),HttpStatus.OK);
+		}catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@GetMapping("/getSrfUsuario")
+	public ResponseEntity<SrfDto.Detalle> getSrfUsuario(@RequestParam (value="idSrf") String idSrf,@RequestParam (value="idPersona") Long idPersona){
+		try {
+			return new ResponseEntity<>(this.srfService.getSrfUsuario(idSrf, idPersona),HttpStatus.OK);
 		}catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
@@ -55,6 +65,15 @@ public class SrfController {
 	public ResponseEntity<SrfDto.Response> updateSrf(@RequestBody SrfDto.Response response){
 		try {
 			return new ResponseEntity<>(this.srfService.updateSrf(response),HttpStatus.OK);
+		}catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@GetMapping("/getSrfEstado")
+	public ResponseEntity<List<Integer>> getSrfEstado(@RequestParam (value = "idPersona") Long idPersona){
+		try {
+			return new ResponseEntity<>(this.srfService.getSrfEstado(idPersona),HttpStatus.OK);
 		}catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}

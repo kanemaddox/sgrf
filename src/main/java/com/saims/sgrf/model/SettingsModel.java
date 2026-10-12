@@ -31,7 +31,7 @@ public class SettingsModel extends BaseEntity{
     private String categoria;
 	
 	@JdbcTypeCode(SqlTypes.JSON)
-    @Column(name="value",columnDefinition = "json")
+    @Column(name="valores")
     private Map<String, Object> value;
 
 }
