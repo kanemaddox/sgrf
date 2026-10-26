@@ -88,7 +88,11 @@ public class FileServiceImpl implements FileService {
 		String contentType = file.getContentType();
 		String baseName = String.valueOf(System.currentTimeMillis());
 		Path rutaBase = Paths.get(this.uploadDir).resolve("document");
+		
 		Path rutaImage = Paths.get(this.uploadDir).resolve("document\\image");
+		
+		//Path rutaImage = Paths.get(this.uploadDir).resolve("document/image");
+		
 		int[] anchos = { 1020, 800, 200, 100, 50 };
 
 		if ("application/pdf".equals(contentType)) {
@@ -134,8 +138,6 @@ public class FileServiceImpl implements FileService {
 			try (InputStream is = new ByteArrayInputStream(bytesImagen)) {
 				convertirImagenAPdf(is, rutaPdfDestino);
 			}
-
-			System.out.println("Es una IMaGEN ===========" + baseName);
 			return baseName;
 
 		} else {
@@ -152,7 +154,6 @@ public class FileServiceImpl implements FileService {
 
 		for (int ancho : anchos) {
 			Path carpetaDimension = rutaBase.resolve(String.valueOf(ancho));
-			System.out.println(carpetaDimension.toString());
 			Files.createDirectories(carpetaDimension);
 			Path rutaDestino = carpetaDimension.resolve(baseName + "." + extension);
 

@@ -1,5 +1,6 @@
 package com.saims.sgrf.dao;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,5 +20,8 @@ public interface AreaDao extends JpaRepository<AreaModel, Long>{
 	
 	@Query(value = "select * from area where id=?",nativeQuery=true)
 	AreaModel getId(Long id);
+	
+	@Query(value = "select * from area where tipo=?",nativeQuery=true)
+	List<AreaModel> findByTipo(String tipo);
 	
 }

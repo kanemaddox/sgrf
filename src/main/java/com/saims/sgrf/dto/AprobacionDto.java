@@ -102,7 +102,7 @@ public class AprobacionDto {
 		private String campoNumerico;
 		private String tokenSrf;
 		
-		private List<AutorizadorLite>autorizador;
+		private List<AprobacionDto.Detalle>autorizador;
 	}
 	
 	@Data

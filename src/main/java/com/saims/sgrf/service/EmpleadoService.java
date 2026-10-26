@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 
 import com.saims.sgrf.dto.DatosDto;
 import com.saims.sgrf.dto.EmpleadoDto;
+import com.saims.sgrf.dto.PersonaDto;
 import com.saims.sgrf.enums.TipoEmpleado;
 import com.saims.sgrf.model.EmpleadoModel;
 import com.saims.sgrf.model.PersonaModel;
@@ -107,4 +108,6 @@ public interface EmpleadoService {
 	EmpleadoModel findByPersonaIdModel(Long personaId);
 	
 	List<EmpleadoModel> findByEstado(boolean estado);
+	
+	EmpleadoDto.Response updateCorreo(PersonaDto.Response response);
 }

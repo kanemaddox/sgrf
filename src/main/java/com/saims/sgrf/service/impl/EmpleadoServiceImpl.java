@@ -12,6 +12,7 @@ import com.saims.sgrf.dao.EmpleadoDao;
 import com.saims.sgrf.dao.PersonaDao;
 import com.saims.sgrf.dto.DatosDto;
 import com.saims.sgrf.dto.EmpleadoDto;
+import com.saims.sgrf.dto.PersonaDto;
 import com.saims.sgrf.enums.TipoEmpleado;
 import com.saims.sgrf.model.EmpleadoModel;
 import com.saims.sgrf.model.PersonaModel;
@@ -71,6 +72,14 @@ public class EmpleadoServiceImpl implements EmpleadoService {
 		empleado.setPersona(persona);
 		empleado.setEstado(request.getEstado());
 		empleado.setTipo(request.getTipoEmpleado());
+		this.empleadoDao.save(empleado);
+		return this.modelToResponse(empleado);
+	}
+	
+	@Transactional
+	public EmpleadoDto.Response updateCorreo(PersonaDto.Response response) {
+		EmpleadoModel empleado = this.empleadoDao.getEmpleado(response.getId());
+		empleado.setEmail(response.getEmail());
 		this.empleadoDao.save(empleado);
 		return this.modelToResponse(empleado);
 	}

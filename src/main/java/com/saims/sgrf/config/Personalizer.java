@@ -6,83 +6,97 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
+import java.util.List;
+
+import com.saims.sgrf.model.EmpleadoModel;
 
 public class Personalizer {
-	
+
 	/**
-     * Normaliza textos:
-     * - Convierte a mayúsculas
-     * - Elimina espacios en blanco al inicio y final
-     */
+	 * Normaliza textos: - Convierte a mayúsculas - Elimina espacios en blanco al
+	 * inicio y final
+	 */
 	public String normalizer(String value) {
 		return value != null ? value.toUpperCase().trim().replaceAll("\\s+", " ") : null;
-    }
-	
-	public String normalizerLower(String value) {
-        return value != null ? value.toLowerCase().trim().replaceAll("\\s+", "") : null;
-    }
-	
-	public String normalizerName(String value) {
-		return value !=null ? name(value):null;
 	}
+
+	public String normalizerLower(String value) {
+		return value != null ? value.toLowerCase().trim().replaceAll("\\s+", "") : null;
+	}
+
+	public String normalizerName(String value) {
+		return value != null ? name(value) : null;
+	}
+
 	private String name(String value) {
 		String name = value.trim().replaceAll("\\s+", " ");
-		return (name.substring(0, 1).toUpperCase()+ name.substring(1).toLowerCase());
+		return (name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase());
 	}
-	
+
 	/**
-     * 📌 prefijos de codigo
-     */
-    public String generatePrefijo(String codigo,int n) {
-    	codigo = normalizer(codigo);
-        return (codigo != null && codigo.length() >= n) 
-                ? codigo.substring(0, n) 
-                : codigo;
-    }
-    public String normalizerIdp(String value) {
+	 * 📌 prefijos de codigo
+	 */
+	public String generatePrefijo(String codigo, int n) {
+		codigo = normalizer(codigo);
+		return (codigo != null && codigo.length() >= n) ? codigo.substring(0, n) : codigo;
+	}
+
+	public String normalizerIdp(String value) {
 		return value != null ? value.toUpperCase().trim().replaceAll("\\s+", "") : null;
-    }
-    
-    /**
-	 * funsion de creacion de password 
-	 * @param value dato para contrasena 
+	}
+
+	/**
+	 * funsion de creacion de password
+	 * 
+	 * @param value dato para contrasena
 	 * @return value decodificado
 	 * @throws Exception
 	 */
-	public String password(String value) throws Exception{
+	public String password(String value) throws Exception {
 		MessageDigest md = MessageDigest.getInstance("SHA-256");
 		byte[] digest = md.digest(value.getBytes(StandardCharsets.UTF_8));
 		StringBuilder hexString = new StringBuilder();
-        for (byte b : digest) {
-            hexString.append(String.format("%02x", b));
-        }
+		for (byte b : digest) {
+			hexString.append(String.format("%02x", b));
+		}
 		return hexString.toString();
 	}
-	
-    public String getPass(String password) throws Exception {
-		
+
+	public String getPass(String password) throws Exception {
+
 		MessageDigest md = MessageDigest.getInstance("SHA-256");
 		byte[] digest = md.digest(password.getBytes(StandardCharsets.UTF_8));
 		StringBuilder hexString = new StringBuilder();
-        for (byte b : digest) {
-            hexString.append(String.format("%02x", b));
-        }
+		for (byte b : digest) {
+			hexString.append(String.format("%02x", b));
+		}
 		return hexString.toString();
 	}
-    public String getNunero(int numero) {
-    	numero++;
-    	return String.format("%06d", numero);
-    }
-    
-    public LocalDateTime getFecha(String fecha) {
-    	DateTimeFormatter formateador = new DateTimeFormatterBuilder()
-    		    .appendOptional(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-    		    .appendOptional(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-    		    .toFormatter();
-    	
-    	LocalDate fechaBase = LocalDate.parse(fecha, formateador);
-    	LocalDateTime fechaFinal = fechaBase.atStartOfDay();
-    	return fechaFinal;
-    }
+
+	public String getNunero(int numero) {
+		numero++;
+		return String.format("%06d", numero);
+	}
+
+	public LocalDateTime getFecha(String fecha) {
+		DateTimeFormatter formateador = new DateTimeFormatterBuilder()
+				.appendOptional(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+				.appendOptional(DateTimeFormatter.ofPattern("yyyy-MM-dd")).toFormatter();
+
+		LocalDate fechaBase = LocalDate.parse(fecha, formateador);
+		LocalDateTime fechaFinal = fechaBase.atStartOfDay();
+		return fechaFinal;
+	}
+
+	public String getSent(List<EmpleadoModel> empleados, Long idPersona) {
+		String correo = "";
+		for (EmpleadoModel emp : empleados) {
+			if (emp.getPersona().getId().longValue() == idPersona.longValue()) {
+				correo = emp.getEmail();
+				break;
+			}
+		}
+		return correo;
+	}
 
 }

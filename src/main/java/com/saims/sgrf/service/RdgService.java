@@ -24,4 +24,6 @@ public interface RdgService {
 	List<Integer> getRdgEstado(Long idPersona);
 	RdgModel saveRdg(RdgDto.Response response);
 	RdgDto.Publico getRdgPublico (String idRdg);
+	List<RdgDto.Lista> getRdgUsuarioGestion(Long idUsuario, int gestion);
+	RdgDto.Detalle getRdgAdmin(Long idUsuario, String idRdg);
 }

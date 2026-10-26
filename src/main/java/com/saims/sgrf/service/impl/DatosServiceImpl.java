@@ -2,6 +2,7 @@ package com.saims.sgrf.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,7 @@ import com.saims.sgrf.dto.AreaDto;
 import com.saims.sgrf.dto.BancoDto;
 import com.saims.sgrf.dto.CargoDto;
 import com.saims.sgrf.dto.DatosDto;
+import com.saims.sgrf.dto.DepartamentoDto;
 import com.saims.sgrf.dto.EmpleadoDto;
 import com.saims.sgrf.dto.PersonaDto;
 import com.saims.sgrf.dto.ProfesionDto;
@@ -32,6 +34,7 @@ import com.saims.sgrf.service.BancoService;
 import com.saims.sgrf.service.CargoService;
 import com.saims.sgrf.service.CuentaBancariaService;
 import com.saims.sgrf.service.DatosService;
+import com.saims.sgrf.service.DepartamentoService;
 import com.saims.sgrf.service.EmpleadoAreaService;
 import com.saims.sgrf.service.EmpleadoCargoService;
 import com.saims.sgrf.service.EmpleadoService;
@@ -66,6 +69,7 @@ public class DatosServiceImpl implements DatosService {
 	private final EmpleadoAreaService empleadoAreaService;
 	
 	private final NivelService nivelService;
+	private final DepartamentoService departamentoService;
 
 	@Transactional
 	public DatosDto.Response AddDatos(DatosDto.Request request) throws Exception {
@@ -385,28 +389,47 @@ public class DatosServiceImpl implements DatosService {
 	@Transactional
 	public DatosDto.Empleado getDatosEmpleados() {
 		DatosDto.Empleado datos = new DatosDto.Empleado();
-
 		List<ProfesionDto.Response> profesion = this.profesionService.getAll();
-		// List<SucursalDto.Response> sucursal = this.sucursalService.findAll();
-		List<AreaDto.Response> area = this.areaServise.findByAll(Estado.TODOS);
-		// List<CentroCostosDto.Response> centro = this.centroCostosService.findAll();
+		List<AreaDto.Estructura> estructura = this.areaServise.getEstructura();
+		
 		List<CargoDto.Response> cargo = this.cargoService.getAll();
 		List<BancoDto.Response> banco = this.bancoService.getAll();
 
-		List<EmpleadoModel> empleado = this.empleadoService.findByTipo(TipoEmpleado.JEFE);
+		List<EmpleadoModel> empleado = this.empleadoService.findByEstado(true);
+		
 		List<PersonaDto.Response> jefe = new ArrayList<PersonaDto.Response>();
+		
+		List<EmpleadoCargoModel> responsable = this.empleadoCargoService.findByEstado(true);
+			
+		List<EmpleadoCargoModel> unico = responsable.stream()
+		        .collect(Collectors.toMap(
+		                emp -> emp.getIdpPago(), 
+		                emp -> emp,                    
+		                (existente, reemplazo) -> existente
+		        ))
+		        .values()
+		        .stream()
+		        .collect(Collectors.toList());
+		
+		List<PersonaDto.Response> pago = new ArrayList<PersonaDto.Response>();
+		for(EmpleadoCargoModel value:unico) {
+			for(EmpleadoModel item: empleado) {
+				if(value.getIdpPago().equals(item.getPersona().getIdp())) {
+					pago.add(this.modelMapper.map(item.getPersona(), PersonaDto.Response.class));
+				}
+			}
+		}
 
 		for (EmpleadoModel e : empleado) {
 			jefe.add(this.modelMapper.map(e.getPersona(), PersonaDto.Response.class));
 		}
 
 		datos.setProfesion(profesion);
-		// datos.setSucursal(sucursal);
-		datos.setArea(area);
-		// datos.setCentrocostos(centro);
+		datos.setEstructura(estructura);
 		datos.setCargo(cargo);
 		datos.setBanco(banco);
 		datos.setJefe(jefe);
+		datos.setPago(pago);
 
 		return datos;
 	}

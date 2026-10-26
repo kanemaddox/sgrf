@@ -8,15 +8,20 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 
 import com.saims.sgrf.config.EmailTemplate;
+import com.saims.sgrf.config.Personalizer;
 import com.saims.sgrf.dao.AprobacionDao;
 import com.saims.sgrf.dto.AprobacionDto;
+import com.saims.sgrf.dto.PersonaDto;
 import com.saims.sgrf.enums.Estado;
+import com.saims.sgrf.model.EmpleadoModel;
+import com.saims.sgrf.model.PersonaModel;
 import com.saims.sgrf.model.SettingsModel;
 import com.saims.sgrf.model.SrfAprobacionModel;
 import com.saims.sgrf.model.SrfModel;
-import com.saims.sgrf.model.UsuarioModel;
 import com.saims.sgrf.service.AprobacionService;
 import com.saims.sgrf.service.EmailService;
+import com.saims.sgrf.service.EmpleadoService;
+import com.saims.sgrf.service.PersonaService;
 import com.saims.sgrf.service.RdgService;
 import com.saims.sgrf.service.SettingsService;
 import com.saims.sgrf.service.UsuarioService;
@@ -34,6 +39,10 @@ public class AprobacionServiceImpl implements AprobacionService.Srf {
 	private final RdgService rdgService;
 	private final EmailService emailService;
 	private final SettingsService settingsService;
+	private final PersonaService personaService;
+	//Temporar solo paar pruebas por correo 
+	private final EmpleadoService empleadoService;
+	private Personalizer personalizer = new Personalizer();
 
 	@Transactional
 	public SrfAprobacionModel createModel(SrfAprobacionModel aprobacion) {
@@ -148,18 +157,18 @@ public class AprobacionServiceImpl implements AprobacionService.Srf {
 			revisar.setCampoTexto(aprobacion.getSrf().getCampoTexto());
 			revisar.setCampoNumerico(aprobacion.getSrf().getCampoNumerico());
 			revisar.setTokenSrf(aprobacion.getSrf().getToken());
-			List<AprobacionDto.AutorizadorLite>autorizador = new ArrayList<AprobacionDto.AutorizadorLite>(); 
+			
+			List<AprobacionDto.Detalle>autorizador = new ArrayList<AprobacionDto.Detalle>();
 			//Autorizadores
 			List<SrfAprobacionModel> aprobadores = this.aprobacionDao.findByIdSrf(revisar.getIdSrf());
 			
 			for(SrfAprobacionModel value : aprobadores) {
-				AprobacionDto.AutorizadorLite nuevo = new AprobacionDto.AutorizadorLite();
+				AprobacionDto.Detalle nuevo = new AprobacionDto.Detalle();
 				nuevo.setId(value.getId());
 				nuevo.setDestino(value.getDestino());
 				nuevo.setEstado(value.getEstado());
-				nuevo.setNombre(value.getPersona().getNombre());
-				nuevo.setIdp(value.getPersona().getIdp());
-				nuevo.setFoto(value.getPersona().getFoto());
+				nuevo.setJefe(modelToResponsePersona(value.getPersona()));
+				nuevo.setObs(value.getObs());
 				autorizador.add(nuevo);
 			}
 			revisar.setAutorizador(autorizador);	
@@ -170,7 +179,8 @@ public class AprobacionServiceImpl implements AprobacionService.Srf {
 	@Transactional
 	public AprobacionDto.Response updateAprobacion(AprobacionDto.UpdateRequest request) {
 		// buscamos al Usuario
-		UsuarioModel usuario = this.usuarioService.getUsuarioModel(request.getIdPersona());
+		PersonaDto.Response persona = this.personaService.getById(request.getIdPersona());
+		List<EmpleadoModel>empleado = this.empleadoService.findAll();
 
 		// Traemos la lista de Autorizadores de la Solicitud
 		List<SrfAprobacionModel> lista = this.aprobacionDao.findByIdSrf(request.getIdSrf());
@@ -183,7 +193,7 @@ public class AprobacionServiceImpl implements AprobacionService.Srf {
 			for (SrfAprobacionModel value : lista) {
 				if (value.getDestino() <= request.getDestino()) {
 					value.setEstado(request.getEstado());
-					value.setObs(request.getObs() + " | " + usuario.getPersona().getNombre());
+					value.setObs(request.getObs() + " | " + persona.getNombre());
 					this.aprobacionDao.save(value);
 				}
 			}
@@ -191,22 +201,22 @@ public class AprobacionServiceImpl implements AprobacionService.Srf {
 			apr.getSrf().setEstado(Estado.RECHAZADO);
 			apr.getSrf().getFormato().put("nivel", 0);
 			this.aprobacionDao.save(apr);
-			this.correoSrf(apr, apr.getSrf(),Estado.RECHAZADO);
+			this.correoSrf(apr.getSrf(),Estado.RECHAZADO,this.personalizer.getSent(empleado, apr.getSrf().getEmpleado().getPersona().getId()));
 		} else {
 			if (request.getEstado() == Estado.DEVUELTO) {
 				for (SrfAprobacionModel value : lista) {
 					if (value.getDestino() <= request.getDestino()) {
 						value.setEstado(request.getEstado());
-						value.setObs(request.getObs() + " | " + usuario.getPersona().getNombre());
+						value.setObs(request.getObs() + " | " + persona.getNombre());
 						value.getSrf().getFormato().put("nivel",0);
 						this.aprobacionDao.save(value);
 					}
 				}
-				this.correoSrf(lista.get(0), lista.get(0).getSrf(),Estado.DEVUELTO);
+				this.correoSrf(lista.get(0).getSrf(),Estado.DEVUELTO,this.personalizer.getSent(empleado,lista.get(0).getSrf().getEmpleado().getPersona().getId()));
 			} else {
 				for (SrfAprobacionModel value : lista) {
 					if (value.getId().longValue() == request.getId().longValue()
-							&& value.getPersona().getId().longValue() == usuario.getPersona().getId().longValue()) {
+							&& value.getPersona().getId().longValue() == persona.getId().longValue()) {
 						value.setEstado(request.getEstado());
 						value.setObs(request.getObs());
 						value.getSrf().getFormato().put("nivel",value.getDestino());
@@ -217,9 +227,10 @@ public class AprobacionServiceImpl implements AprobacionService.Srf {
 							&& (value.getEstado() == Estado.ESPERA || value.getEstado() == Estado.DEVUELTO)) {
 
 						value.setEstado(Estado.PENDIENTE);
-						value.setObs(Estado.APROBADO + " : " + usuario.getPersona().getNombre());
+						value.setObs(Estado.APROBADO + " : " + persona.getNombre());
 						this.aprobacionDao.save(value);
-						this.correoSrf(value, value.getSrf(),Estado.PENDIENTE); 
+						
+						this.correoSrf(value.getSrf(),Estado.PENDIENTE,this.personalizer.getSent(empleado, value.getPersona().getId())); 						
 						response = this.modelToResponse(value);
 					}
 					if (value.getEstado() == Estado.APROBADO) {
@@ -235,7 +246,7 @@ public class AprobacionServiceImpl implements AprobacionService.Srf {
 			this.aprobacionDao.save(apr);
 			this.rdgService.createTramite(apr.getSrf(), apr.getSrf().getEmpleado());
 			
-			this.correoSrf(apr,apr.getSrf(),Estado.APROBADO);
+			this.correoSrf(apr.getSrf(),Estado.APROBADO,this.personalizer.getSent(empleado, apr.getSrf().getEmpleado().getPersona().getId()));
 			
 		}
 		response.setSrf(null);
@@ -244,6 +255,10 @@ public class AprobacionServiceImpl implements AprobacionService.Srf {
 
 	private AprobacionDto.Stado modelToStado(SrfAprobacionModel value) {
 		return this.modelMapper.map(value, AprobacionDto.Stado.class);
+	}
+	
+	private PersonaDto.Response modelToResponsePersona(PersonaModel value) {
+		return this.modelMapper.map(value, PersonaDto.Response.class);
 	}
 
 	private AprobacionDto.Revisar modelToRevizar(SrfAprobacionModel value) {
@@ -258,7 +273,7 @@ public class AprobacionServiceImpl implements AprobacionService.Srf {
 		return this.modelMapper.map(value, AprobacionDto.Response.class);
 	}
 
-	private void correoSrf(SrfAprobacionModel aprobador, SrfModel formulario, Estado estado) {
+	private void correoSrf(SrfModel formulario, Estado estado,String correo) {
 
 		SettingsModel setting = this.settingsService.getValueModel(1L);
 
@@ -267,7 +282,6 @@ public class AprobacionServiceImpl implements AprobacionService.Srf {
 			String from = (String) setting.getValue().get("correo");
 			String sujeto = "";
 			String emailHtml="";
-			String correo ="farragot@hotmail.com";
 			Context contexto = null;
 			
 			switch(estado) {

@@ -141,7 +141,7 @@
 		    <artifactId>spring-boot-starter-thymeleaf</artifactId>
 		</dependency>
 		
-		<!-- Deswcomentar para generar WAR 
+		<!-- Deswcomentar para generar WAR  
 		<dependency>
 		    <groupId>org.springframework.boot</groupId>
 		    <artifactId>spring-boot-starter-tomcat</artifactId>

@@ -63,6 +63,7 @@ public class RdgDto {
 		private Long id;
 		private String detalle;
 		private String numero;
+		private String idp;
 		private int gestion;
 		private BigDecimal importe;
 		private BigDecimal gasto;
@@ -176,6 +177,8 @@ public class RdgDto {
 		
 		private String numero;
 		private int gestion;
+		private String nombre;
+		private String idp;
 
 		private String actividad;
 		private String fecha;

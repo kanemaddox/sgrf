@@ -268,6 +268,7 @@ public class AreaServiceImpl implements AreaService {
 		}
 		return areas;
 	}
+	
 
 	/**
 	 * 📌 Búsqueda por nombre

@@ -17,5 +17,7 @@ public interface SrfService {
 	SrfModel findById(Long idSrf);
 	List<Integer> getSrfEstado(Long idPersona);
 	SrfDto.Publico getSrfPublico(String token);
+	List<SrfDto.Stado> getSrfUsuarioGestion(Long idUsuario, int gestion);
+	SrfDto.Detalle getSrfAdmin(Long idUsuario,String idSrf);
 
 }

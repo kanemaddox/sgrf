@@ -33,6 +33,7 @@ import com.saims.sgrf.model.RdgAprobacionModel;
 import com.saims.sgrf.model.RdgModel;
 import com.saims.sgrf.model.SettingsModel;
 import com.saims.sgrf.model.SrfModel;
+import com.saims.sgrf.model.UsuarioModel;
 import com.saims.sgrf.service.AprobacionService;
 import com.saims.sgrf.service.CuentaBancariaService;
 import com.saims.sgrf.service.CuentaService;
@@ -46,6 +47,7 @@ import com.saims.sgrf.service.RdgDetalleService;
 import com.saims.sgrf.service.RdgDevolverService;
 import com.saims.sgrf.service.RdgService;
 import com.saims.sgrf.service.SettingsService;
+import com.saims.sgrf.service.UsuarioService;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -70,6 +72,7 @@ public class RdgServiceImpl implements RdgService {
 	private final AprobacionService.Rdg aprobacionRdgService;
 	private final SettingsService settingsService;
 	private final EmailService emailService;
+	private final UsuarioService usuarioService;
 
 	@Transactional
 	public RdgModel createOrGet(SrfModel srf, EmpleadoModel empleado) {
@@ -378,6 +381,15 @@ public class RdgServiceImpl implements RdgService {
 		}
 		return lista;
 	}
+	@Transactional
+	public List<RdgDto.Lista> getRdgUsuarioGestion(Long idUsuario, int gestion) {
+		UsuarioModel usuario = this.usuarioService.getUsuarioModel(idUsuario);
+		EmpleadoModel empleado = this.empleadoService.findByPersonaIdModel(usuario.getPersona().getId());
+		
+		List<RdgModel> rdg = this.rdgDao.getEmpleadoGestion(empleado.getId(), gestion);
+		
+		return getRdg(empleado,rdg);
+	}
 
 	@Transactional
 	public RdgDto.Response getRdg(Long idRdg) {
@@ -490,6 +502,7 @@ public class RdgServiceImpl implements RdgService {
 
 		EmpleadoModel empleado = this.empleadoService.findByPersonaIdModel(response.getIdPersona());
 		List<CuentaModel> cuentas = this.cuentaService.findAll();
+		List<EmpleadoModel> empleados = this.empleadoService.findAll();
 
 		RdgModel rdg = this.rdgDao
 				.getRdgSolicitud(response.getIdRdg(), response.getIdSrf(), empleado.getId(), response.getToken())
@@ -521,7 +534,7 @@ public class RdgServiceImpl implements RdgService {
 			for (RdgAprobacionModel value : aprobadores) {
 				if (value.getDestino() == 1) {
 					value.setEstado(Estado.PENDIENTE);
-					correoRdg(value, rdg, "MODIFICADO ");
+					this.correoRdg(value, rdg, "MODIFICADO ",this.personalizer.getSent(empleados, value.getPersona().getId()));
 				} else {
 					value.setEstado(Estado.ESPERA);
 				}
@@ -604,6 +617,11 @@ public class RdgServiceImpl implements RdgService {
 
 		return detalle;
 
+	}
+	@Transactional
+	public RdgDto.Detalle getRdgAdmin(Long idUsuario, String idRdg) {
+		UsuarioModel usuario = this.usuarioService.getUsuarioModel(idUsuario);
+		return getRdg(usuario.getPersona().getId(),idRdg); 
 	}
 
 	@Transactional
@@ -771,7 +789,7 @@ public class RdgServiceImpl implements RdgService {
 			aprobador.setToken(token);
 			this.aprobacionRdgService.createModel(aprobador);
 			if (i == 1) {
-				correoRdg(aprobador, rdg, "");
+				this.correoRdg(aprobador, rdg, "",this.personalizer.getSent(empleados, jef.getId()));
 			}
 			detalleBol.add(false);
 		}
@@ -792,7 +810,7 @@ public class RdgServiceImpl implements RdgService {
 		}
 	}
 
-	private void correoRdg(RdgAprobacionModel aprobador, RdgModel formulario, String isEdit) {
+	private void correoRdg(RdgAprobacionModel aprobador, RdgModel formulario, String isEdit,String correo) {
 
 		SettingsModel setting = this.settingsService.getValueModel(1L);
 
@@ -805,7 +823,7 @@ public class RdgServiceImpl implements RdgService {
 
 			Context contexto = template.getEmailRdgPendiente(formulario, setting);
 
-			this.emailService.enviarCorreo("farragot@hotmail.com", sujeto, from, "email-rdg", contexto);
+			this.emailService.enviarCorreo(correo, sujeto, from, "email-rdg", contexto);
 		}
 	}
 
@@ -871,6 +889,107 @@ public class RdgServiceImpl implements RdgService {
 
 	private RdgDto.Lista modelToLista(RdgModel rdg) {
 		return this.modelMapper.map(rdg, RdgDto.Lista.class);
+	}
+	
+	private List<RdgDto.Lista> getRdg(EmpleadoModel empleado, List<RdgModel> rdg) {
+		String idp = empleado.getPersona().getIdp();
+		List<RdgDto.Lista> lista = new ArrayList<RdgDto.Lista>();
+		RdgDto.Lista model = null;
+		for (RdgModel value : rdg) {
+			model = new RdgDto.Lista();
+			model.setId(value.getId());
+			model.setDetalle(value.getDetalle());
+			model.setNumero(value.getNumero());
+			model.setGestion(value.getGestion());
+			model.setIdp(idp);
+			model.setImporte(value.getImporte());
+			model.setRembolso(value.getRembolso());
+			model.setSaldo(value.getSaldo());
+			model.setDevolver(value.getDevolver());
+			model.setGasto(value.getGasto());
+			model.setMoneda(value.getMoneda());
+			model.setEstado(value.getEstado());
+			model.setFecha(value.getFechaRendicion());
+			model.setToken(value.getToken());
+			model.setActividad(value.getActividad());
+			lista.add(model);
+		}
+		return lista;
+	}
+	private RdgDto.Detalle getRdg(Long idPersona,String idRdg) {
+
+		EmpleadoModel empleado = this.empleadoService.findByPersonaIdModel(idPersona);
+		RdgDto.Detalle detalle = new RdgDto.Detalle();
+		RdgModel rdgModel = this.rdgDao.findByTokenIdEmpleado(idRdg, empleado.getId()).orElseGet(() -> {
+			RdgModel nuevo = new RdgModel();
+			nuevo.setId(0L);
+			return nuevo;
+		});
+
+		if (rdgModel.getId().longValue() > 0L) {
+			List<CuentaModel> cuentas = this.cuentaService.findAll();
+			List<CuentaDto.Resumen> resumen = new ArrayList<CuentaDto.Resumen>();
+
+			detalle.setIdRdg(rdgModel.getId());
+			detalle.setIdSrf(rdgModel.getIdSrf());
+			detalle.setActividad(rdgModel.getActividad());
+			detalle.setFecha(rdgModel.getFechaRendicion());
+			detalle.setAl(rdgModel.getAl().toString());
+			detalle.setDel(rdgModel.getDel().toString());
+			detalle.setArea(rdgModel.getArea());
+			detalle.setCargo(rdgModel.getCargo());
+			detalle.setCentrocostos(rdgModel.getCentroCostos());
+			detalle.setCodigo(rdgModel.getCodigo());
+			detalle.setEstado(rdgModel.getEstado());
+			detalle.setFormato(rdgModel.getFormato());
+			detalle.setDevolver(rdgModel.getDevolver());
+			detalle.setGasto(rdgModel.getGasto());
+			detalle.setImporte(rdgModel.getImporte());
+			detalle.setRembolso(rdgModel.getRembolso());
+			detalle.setSaldo(rdgModel.getSaldo());
+			detalle.setTc(rdgModel.getTipoCambio());
+			detalle.setMoneda(rdgModel.getMoneda());
+			detalle.setParticipantes(rdgModel.getParticipantes());
+			detalle.setTipoCuenta(rdgModel.getTipoCuenta());
+			detalle.setCuenta(rdgModel.getCuenta());
+			detalle.setBanco(rdgModel.getBanco());
+			detalle.setDetalle(rdgModel.getDetalle());
+			detalle.setNumero(rdgModel.getNumero());
+			detalle.setGestion(rdgModel.getGestion());
+			detalle.setNombre(empleado.getPersona().getNombre()+" "+empleado.getPersona().getPaterno()+" "+empleado.getPersona().getMaterno());
+			detalle.setIdp(empleado.getPersona().getIdp());
+			detalle.setToken(rdgModel.getToken());
+
+			List<RdgDetalleDto.Response> factura = this.rdgDetalleService
+					.findByIdRdgByAgregadoResponse(rdgModel.getId(), Estado.SI);
+			detalle.setFactura(factura);
+			
+			List<RdgDevolverDto.Response>devolver = this.rdgDevolverService.findByIdRdgByAgregadoResponse(rdgModel.getId(), Estado.SI);
+			detalle.setDeposito(devolver);
+
+			List<AprobacionDto.RdgResponse> aprobadores = this.aprobacionRdgService
+					.findByIdRdgResponse(rdgModel.getId());
+
+			detalle.setAprobadores(aprobadores);
+
+			boolean pdf = aprobadores.stream().allMatch(a -> a.getEstado() == Estado.APROBADO);
+			boolean editar = aprobadores.stream().anyMatch(a -> a.getEstado() == Estado.APROBADO);
+			boolean devuelto = aprobadores.stream().anyMatch(a -> a.getEstado() == Estado.DEVUELTO);
+			detalle.setPdf(!pdf);
+			detalle.setEditar(editar);
+			detalle.setDevuelto(devuelto);
+
+			this.getResumen(detalle.getGasto(), cuentas, resumen, Estado.PORCOBRAR);
+			this.getResumen(detalle.getRembolso(), cuentas, resumen, Estado.PORPAGAR);
+
+			detalle.setResumen(resumen);
+
+		} else {
+			detalle.setIdRdg(0L);
+		}
+
+		return detalle;
+
 	}
 
 }

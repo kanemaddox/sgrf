@@ -130,11 +130,10 @@ public class DatosDto {
 	public static class Empleado{
 		private List<ProfesionDto.Response> profesion;
 		private List<CargoDto.Response> cargo;
-		private List<AreaDto.Response> area;
-		private List<SucursalDto.Response> sucursal;
-		private List<CentroCostosDto.Response> centrocostos;
 		private List<BancoDto.Response> banco;
 		private List<PersonaDto.Response> jefe;
+		private List<PersonaDto.Response> pago;
+		private List<AreaDto.Estructura> estructura;
 	}
 	
 	@Data

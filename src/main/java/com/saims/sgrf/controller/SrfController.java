@@ -43,6 +43,15 @@ public class SrfController {
 		}
 	}
 	
+	@GetMapping("/getSrfUsuarioGestion")
+	public ResponseEntity<List<SrfDto.Stado>> getSrfUsuarioGestion(@RequestParam (value="idUsuario") Long idPersona, @RequestParam (value="gestion") int gestion){
+		try {
+			return new ResponseEntity<>(this.srfService.getSrfUsuarioGestion(idPersona, gestion),HttpStatus.OK);
+		}catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
 	@GetMapping("/getSrf")
 	public ResponseEntity<SrfDto.Detalle> getSrf(@RequestParam (value="idSrf") Long idSrf){
 		try {
@@ -56,6 +65,14 @@ public class SrfController {
 	public ResponseEntity<SrfDto.Detalle> getSrfUsuario(@RequestParam (value="idSrf") String idSrf,@RequestParam (value="idPersona") Long idPersona){
 		try {
 			return new ResponseEntity<>(this.srfService.getSrfUsuario(idSrf, idPersona),HttpStatus.OK);
+		}catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	@GetMapping("/getSrfAdmin")
+	public ResponseEntity<SrfDto.Detalle> getSrfAdmin(@RequestParam (value="idUsuario") Long idUsuario,@RequestParam (value="idSrf") String idSrf){
+		try {
+			return new ResponseEntity<>(this.srfService.getSrfAdmin(idUsuario,idSrf),HttpStatus.OK);
 		}catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}

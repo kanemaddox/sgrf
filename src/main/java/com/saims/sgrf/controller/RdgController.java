@@ -52,6 +52,14 @@ public class RdgController {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	@GetMapping("/getRdgUsuarioGestion")
+	public ResponseEntity<List<RdgDto.Lista>> getRdgUsuarioGestion(@RequestParam (value="idUsuario") Long idUsuario, @RequestParam (value="gestion") int gestion){
+		try {
+			return new ResponseEntity<>(this.rdgService.getRdgUsuarioGestion(idUsuario, gestion),HttpStatus.OK);
+		}catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 	
 	@GetMapping("/getRdg")
 	public ResponseEntity<RdgDto.Response> getRdg(@RequestParam (value="idRdg") Long idRdg){
@@ -75,6 +83,14 @@ public class RdgController {
 	public ResponseEntity<RdgDto.Detalle> getRdgDetalle(@RequestParam (value="idRdg") String idRdg,@RequestParam (value="idPersona") Long idPersona){
 		try {
 			return new ResponseEntity<>(this.rdgService.getRdgDetalle(idRdg,idPersona),HttpStatus.OK);
+		}catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	@GetMapping("/getRdgAdmin")
+	public ResponseEntity<RdgDto.Detalle> getRdgAdmin(@RequestParam (value="idUsuario") Long idUsuario,@RequestParam (value="idRdg") String idRdg){
+		try {
+			return new ResponseEntity<>(this.rdgService.getRdgAdmin(idUsuario,idRdg),HttpStatus.OK);
 		}catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}

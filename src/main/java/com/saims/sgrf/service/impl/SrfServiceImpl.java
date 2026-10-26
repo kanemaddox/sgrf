@@ -3,6 +3,7 @@ package com.saims.sgrf.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
@@ -21,6 +22,7 @@ import com.saims.sgrf.model.PersonaModel;
 import com.saims.sgrf.model.SettingsModel;
 import com.saims.sgrf.model.SrfAprobacionModel;
 import com.saims.sgrf.model.SrfModel;
+import com.saims.sgrf.model.UsuarioModel;
 import com.saims.sgrf.service.AprobacionService;
 import com.saims.sgrf.service.CuentaBancariaService;
 import com.saims.sgrf.service.EmailService;
@@ -47,6 +49,7 @@ public class SrfServiceImpl implements SrfService {
 	private final PersonaService personaService;
 	private final EmailService emailService;
 	private final SettingsService settingsService;
+	private final UsuarioService usuarioService;
 	private Personalizer personalizer = new Personalizer();
 
 	@Transactional
@@ -142,7 +145,7 @@ public class SrfServiceImpl implements SrfService {
 				aprobador.setToken(tokenJefe);
 				this.aprobacionService.createModel(aprobador);
 				if (i == 1) {
-					correoSrf(aprobador, formulario);
+					correoSrf(aprobador, formulario,this.personalizer.getSent(empleados, jef.getId()));
 				}
 			}
 			if (idPago.getId().longValue() > 0L) {
@@ -181,6 +184,29 @@ public class SrfServiceImpl implements SrfService {
 			total = (Integer) value.getFormato().get("total");
 			ap = nivel >= 1 ? (nivel / total) * 100 : 10;
 			srf.add(this.modelToStado(value));
+			srf.getLast().setFechaTitulo((String) value.getFormato().get("fechaTitulo"));
+			srf.getLast().setMontoTitulo((String) value.getFormato().get("montoTitulo"));
+			srf.getLast().setAprobacion(ap);
+		}
+		return srf;
+	}
+	
+	@Transactional
+	public List<SrfDto.Stado> getSrfUsuarioGestion(Long idUsuario, int gestion) {
+		UsuarioModel usuario = this.usuarioService.getUsuarioModel(idUsuario);
+		String idp = usuario.getPersona().getIdp();
+		EmpleadoModel empleado = this.empleadoService.findByPersonaIdModel(usuario.getPersona().getId());
+		List<SrfModel> lista = this.srfDao.getEmpleadoGestion(empleado.getId(), gestion);
+		List<SrfDto.Stado> srf = new ArrayList<SrfDto.Stado>();
+		double nivel = 0;
+		double total = 0;
+		double ap = 0;
+		for (SrfModel value : lista) {
+			nivel = (Integer) value.getFormato().get("nivel");
+			total = (Integer) value.getFormato().get("total");
+			ap = nivel >= 1 ? (nivel / total) * 100 : 10;
+			srf.add(this.modelToStado(value));
+			srf.getLast().setIdp(idp);
 			srf.getLast().setFechaTitulo((String) value.getFormato().get("fechaTitulo"));
 			srf.getLast().setMontoTitulo((String) value.getFormato().get("montoTitulo"));
 			srf.getLast().setAprobacion(ap);
@@ -288,66 +314,13 @@ public class SrfServiceImpl implements SrfService {
 
 	@Transactional
 	public SrfDto.Detalle getSrfUsuario(String idSrf, Long idPersona) {
-
-		EmpleadoModel empleado = this.empleadoService.findByPersonaIdModel(idPersona);
-
-		SrfModel srfModel = this.srfDao.findByToken(idSrf, empleado.getId()).orElseGet(() -> {
-			SrfModel nuevo = new SrfModel();
-			nuevo.setId(0L);
-			return nuevo;
-		});
-
-		SrfDto.Detalle srf = new SrfDto.Detalle();
-		srf.setId(0L);
-		int i = 0;
-		if (srfModel.getId().longValue() > 0L) {
-			List<SrfAprobacionModel> lista = this.aprobacionService.findByIdSrf(srfModel.getId());
-
-			List<AprobacionDto.Detalle> jefes = new ArrayList<AprobacionDto.Detalle>();
-			AprobacionDto.Detalle nuevo;
-
-			srf.setId(srfModel.getId());
-			srf.setCampoNumerico(srfModel.getCampoNumerico());
-			srf.setCampoTexto(srfModel.getCampoTexto());
-			srf.setDetalle(srfModel.getDetalle());
-			srf.setEstado(srfModel.getEstado());
-			srf.setFechaEstimada(srfModel.getFechaEstimada());
-			srf.setFechaSolicitud(srfModel.getFechaSolicitud());
-			srf.setGestion(srfModel.getGestion());
-			srf.setMoneda(srfModel.getMoneda());
-			srf.setMonto(srfModel.getMonto());
-			srf.setNumero(srfModel.getNumero());
-			srf.setTipo(srfModel.getTipo());
-			srf.setCargo(srfModel.getCargo());
-			srf.setCentrocosto(srfModel.getCentrocosto());
-			srf.setCodigo(srfModel.getCodigo());
-			srf.setFormato(srfModel.getFormato());
-			srf.setToken(srfModel.getToken());
-			srf.setCuenta(null);
-			srf.setEmpleado(null);
-			srf.setEdit(true);
-			srf.setPdf(true);
-			for (SrfAprobacionModel value : lista) {
-				nuevo = new AprobacionDto.Detalle();
-				nuevo.setId(value.getId());
-				nuevo.setDestino(value.getDestino());
-				nuevo.setEstado(value.getEstado());
-				nuevo.setTipo(value.getTipo());
-				nuevo.setObs(value.getObs());
-				nuevo.setFechaActualizacion(value.getFechaActualizacion().toString());
-				nuevo.setJefe(this.modelPersonaToResponse(value.getPersona()));
-				nuevo.setCargo(value.getCargo());
-				nuevo.setSrf(null);
-				jefes.add(nuevo);
-				if (value.getEstado() == Estado.APROBADO) {
-					srf.setEdit(false);
-					i++;
-				}
-			}
-			srf.setAprobadores(jefes);
-			srf.setPdf(i == lista.size() ? false : true);
-		}
-		return srf;
+		return getSrf(idPersona,idSrf);
+	}
+	
+	@Transactional
+	public SrfDto.Detalle getSrfAdmin(Long idUsuario,String idSrf) {
+		UsuarioModel usuario = this.usuarioService.getUsuarioModel(idUsuario);		
+		return getSrf(usuario.getPersona().getId(),idSrf);
 	}
 
 	@Transactional
@@ -369,7 +342,7 @@ public class SrfServiceImpl implements SrfService {
 			List<SrfAprobacionModel> devuelto = this.aprobacionService.findByIdSrf(update.getId());
 			if (devuelto.size() > 0) {
 				devuelto.get(0).setEstado(Estado.PENDIENTE);
-				this.correoSrf(devuelto.get(0), update);
+				this.correoSrf(devuelto.get(0), update,"farragot@hotmail.com");
 			}
 			this.srfDao.save(update);
 		}
@@ -497,8 +470,8 @@ public class SrfServiceImpl implements SrfService {
 		}
 		return cargo;
 	}
-
-	private void correoSrf(SrfAprobacionModel aprobador, SrfModel formulario) {
+	
+	private void correoSrf(SrfAprobacionModel aprobador, SrfModel formulario, String mail) {
 
 		SettingsModel setting = this.settingsService.getValueModel(1L);
 
@@ -511,7 +484,73 @@ public class SrfServiceImpl implements SrfService {
 
 			Context contexto = template.getEmailSrfPendiente(formulario, setting);
 
-			this.emailService.enviarCorreo("farragot@hotmail.com", sujeto, from, "email-srf", contexto);
+			this.emailService.enviarCorreo(mail, sujeto, from, "email-srf", contexto);
 		}
+	}
+	
+	private SrfDto.Detalle getSrf(Long idPersona,String idSrf) {
+		
+		EmpleadoModel empleado = this.empleadoService.findByPersonaIdModel(idPersona);
+
+		SrfModel srfModel = this.srfDao.findByToken(idSrf, empleado.getId()).orElseGet(() -> {
+			SrfModel nuevo = new SrfModel();
+			nuevo.setId(0L);
+			return nuevo;
+		});
+
+		SrfDto.Detalle srf = new SrfDto.Detalle();
+		srf.setId(0L);
+		int i = 0;
+		if (srfModel.getId().longValue() > 0L) {
+			List<SrfAprobacionModel> lista = this.aprobacionService.findByIdSrf(srfModel.getId());
+
+			List<AprobacionDto.Detalle> jefes = new ArrayList<AprobacionDto.Detalle>();
+			AprobacionDto.Detalle nuevo;
+
+			srf.setId(srfModel.getId());
+			srf.setIdp(empleado.getPersona().getIdp());
+			srf.setNombre(empleado.getPersona().getNombre() +" "+empleado.getPersona().getPaterno()+" "+empleado.getPersona().getMaterno());
+			srf.setEmail(empleado.getPersona().getEmail());
+			srf.setCampoNumerico(srfModel.getCampoNumerico());
+			srf.setCampoTexto(srfModel.getCampoTexto());
+			srf.setDetalle(srfModel.getDetalle());
+			srf.setEstado(srfModel.getEstado());
+			srf.setFechaEstimada(srfModel.getFechaEstimada());
+			srf.setFechaSolicitud(srfModel.getFechaSolicitud());
+			srf.setGestion(srfModel.getGestion());
+			srf.setMoneda(srfModel.getMoneda());
+			srf.setMonto(srfModel.getMonto());
+			srf.setNumero(srfModel.getNumero());
+			srf.setTipo(srfModel.getTipo());
+			srf.setCargo(srfModel.getCargo());
+			srf.setCentrocosto(srfModel.getCentrocosto());
+			srf.setCodigo(srfModel.getCodigo());
+			srf.setFormato(srfModel.getFormato());
+			srf.setToken(srfModel.getToken());
+			srf.setCuenta(null);
+			srf.setEmpleado(null);
+			srf.setEdit(true);
+			srf.setPdf(true);
+			for (SrfAprobacionModel value : lista) {
+				nuevo = new AprobacionDto.Detalle();
+				nuevo.setId(value.getId());
+				nuevo.setDestino(value.getDestino());
+				nuevo.setEstado(value.getEstado());
+				nuevo.setTipo(value.getTipo());
+				nuevo.setObs(value.getObs());
+				nuevo.setFechaActualizacion(value.getFechaActualizacion().toString());
+				nuevo.setJefe(this.modelPersonaToResponse(value.getPersona()));
+				nuevo.setCargo(value.getCargo());
+				nuevo.setSrf(null);
+				jefes.add(nuevo);
+				if (value.getEstado() == Estado.APROBADO) {
+					srf.setEdit(false);
+					i++;
+				}
+			}
+			srf.setAprobadores(jefes);
+			srf.setPdf(i == lista.size() ? false : true);
+		}
+		return srf;
 	}
 }

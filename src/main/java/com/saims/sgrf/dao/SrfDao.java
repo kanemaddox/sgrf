@@ -26,5 +26,8 @@ public interface SrfDao extends JpaRepository<SrfModel, Long> {
 	
 	@Query(value = "select * from srf where token=?", nativeQuery = true)
 	Optional<SrfModel> findByToken(String token);
+	
+	@Query(value = "select * from srf where id_empleado=? and gestion=?", nativeQuery = true)
+	List<SrfModel> getEmpleadoGestion(Long idEmpleado, int gestion);
 
 }

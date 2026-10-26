@@ -37,5 +37,8 @@ public interface RdgDao extends JpaRepository<RdgModel,Long>{
 	
 	@Query(value = "select * from rdg where id_empleado=?", nativeQuery = true)
 	List<RdgModel> findByIdEstado(Long idEmpleado);
+	
+	@Query(value="select * from rdg where id_empleado=? and gestion=?",nativeQuery=true)
+	List<RdgModel>getEmpleadoGestion(Long idEmpleado, int gestion);
 
 }

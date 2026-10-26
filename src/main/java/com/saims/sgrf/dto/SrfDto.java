@@ -108,6 +108,9 @@ public class SrfDto {
 		private String cargo;
 		private String centrocosto;
 		private String codigo;
+		private String idp;
+		private String nombre;
+		private String email;
 		private boolean edit;
 		private boolean pdf;
 		private CuentaBancariaDto.Response cuenta;
@@ -149,6 +152,7 @@ public class SrfDto {
 		private String token;
 		private String fechaTitulo;
 		private String montoTitulo;
+		private String idp;
 		private double aprobacion;
 	}
 }
